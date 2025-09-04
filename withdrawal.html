@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Penarikan Dana</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9f9f9;
+      margin: 0; padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      max-width: 400px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 24px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: #111827;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      border-color: #2563eb;
+      outline: none;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    .status {
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #2563eb;
+    }
+    .error {
+      color: #dc2626;
+    }
+    .saldo-info {
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #374151;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ajukan Penarikan Dana</h1>
+
+    <div class="saldo-info">Saldo Anda: <span id="saldoUser">-</span></div>
+
+    <label for="amountInput">Nominal Penarikan (IDR)</label>
+    <input type="number" id="amountInput" min="1" placeholder="Masukkan nominal penarikan" required />
+
+    <button id="submitBtn">Ajukan Penarikan</button>
+
+    <div id="status" class="status"></div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const saldoUserEl = document.getElementById('saldoUser');
+    const amountInput = document.getElementById('amountInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusDiv = document.getElementById('status');
+
+    let currentUser = null;
+    let currentSaldo = 0;
+
+    async function getCurrentUser() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        statusDiv.textContent = 'Anda belum login. Silakan login terlebih dahulu.';
+        statusDiv.classList.add('error');
+        submitBtn.disabled = true;
+        return;
+      }
+      currentUser = data.user;
+      loadUserSaldo();
+    }
+
+    async function loadUserSaldo() {
+      const { data, error } = await supabase
+        .from('users')
+        .select('saldo')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error) {
+        statusDiv.textContent = 'Gagal mengambil data saldo: ' + error.message;
+        statusDiv.classList.add('error');
+        submitBtn.disabled = true;
+        return;
+      }
+
+      currentSaldo = parseFloat(data.saldo) || 0;
+      saldoUserEl.textContent = formatRupiah(currentSaldo);
+    }
+
+    function formatRupiah(number) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(number);
+    }
+
+    async function submitWithdrawal() {
+      statusDiv.textContent = '';
+      statusDiv.classList.remove('error');
+
+      const amount = parseFloat(amountInput.value);
+
+      if (!amount || amount <= 0) {
+        statusDiv.textContent = 'Masukkan nominal penarikan yang valid.';
+        statusDiv.classList.add('error');
+        return;
+      }
+
+      if (amount > currentSaldo) {
+        statusDiv.textContent = 'Saldo tidak cukup untuk penarikan.';
+        statusDiv.classList.add('error');
+        return;
+      }
+
+      // Insert withdraw request
+      const { error: insertError } = await supabase
+        .from('withdraw_request')
+        .insert([{ user_id: currentUser.id, amount, status: 'pending' }]);
+
+      if (insertError) {
+        statusDiv.textContent = 'Gagal mengajukan penarikan: ' + insertError.message;
+        statusDiv.classList.add('error');
+        return;
+      }
+
+      statusDiv.textContent = 'Penarikan berhasil diajukan, tunggu proses verifikasi.';
+      amountInput.value = '';
+      // reload saldo, optional kalau saldo diperbarui otomatis di backend
+      loadUserSaldo();
+    }
+
+    submitBtn.addEventListener('click', submitWithdrawal);
+
+    window.addEventListener('DOMContentLoaded', getCurrentUser);
+  </script>
+</body>
+</html>

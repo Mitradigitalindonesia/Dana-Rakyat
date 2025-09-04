@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil Akun</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-subtle: #6b7280;
+      --primary: #0ea5e9;
+      --primary-dark: #0284c7;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-main);
+      margin: 0;
+      padding: 0;
+      color: var(--text-main);
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      background-color: var(--card-bg);
+      padding: 16px 20px;
+      font-family: 'Orbitron', sans-serif;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: bold;
+      font-style: italic;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background-color: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .success-message {
+      text-align: center;
+      color: green;
+      margin-top: 10px;
+    }
+
+    .error-message {
+      text-align: center;
+      color: red;
+      margin-top: 10px;
+    }
+        .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+    }
+
+    .bottom-nav a {
+      color: var(--text-subtle);
+      text-align: center;
+      font-size: 11px;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .bottom-nav a svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+      fill: currentColor;
+    }
+
+    .bottom-nav a.active,
+    .bottom-nav a:hover {
+      color: var(--highlight);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-header">
+    <div class="logo-text">Profil Akun</div>
+  </div>
+
+    <form id="profileForm">
+      <label for="nama">Nama Panggilan</label>
+      <input type="text" id="nama" name="nama" required>
+
+      <label for="nama_lengkap">Nama Lengkap</label>
+      <input type="text" id="nama_lengkap" name="nama_lengkap" required>
+
+      <label for="nik">Nomor NIK</label>
+      <input type="text" id="nik" name="nik" required>
+
+      <label for="no_hp">Nomor Ponsel</label>
+      <input type="text" id="no_hp" name="no_hp" required>
+
+      <label for="nama_bank">Nama Bank</label>
+      <input type="text" id="nama_bank" name="nama_bank" required>
+
+      <label for="no_rekening">Nomor Rekening</label>
+      <input type="text" id="no_rekening" name="no_rekening" required>
+
+      <label for="nama_pemilik_rekening">Nama Pemilik Rekening</label>
+      <input type="text" id="nama_pemilik_rekening" name="nama_pemilik_rekening" required>
+
+      <button type="submit">Simpan</button>
+      <div id="message"></div>
+    </form>
+  </div>
+  
+    <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <a href="dashboard">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 10L12 3l8 7"/>
+        <path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="akun.html"class="active">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path>
+      </svg>
+      <span>Akun</span>
+    </a>
+    <a href="dompet.html">
+      <svg viewBox="0 0 24 24">
+        <path d="M2 7a2 2 0 012-2h16a1 1 0 011 1v2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a1 1 0 001-1v-2h-6a2 2 0-2-2v-2a2 2 0-2-2h6V6a3 3 0-3-3H4a3 3 0-2 2.83V7z"/>
+        <circle cx="18" cy="12" r="1"/>
+      </svg>
+      <span>Dompet</span>
+    </a>
+    <a href="mitra.html">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 12l4-4 4 4-4 4-4-4z"/>
+        <path d="M20 12l-4-4-4 4 4 4 4-4z"/>
+      </svg>
+      <span>Mitra</span>
+    </a>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadProfile() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session || !session.user) {
+    alert("Silakan login terlebih dahulu.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  const userId = session.user.id;
+
+  const { data, error } = await supabase
+    .from('users')
+    .select(`
+      nama,
+      nama_lengkap,
+      nik,
+      no_hp,
+      nama_bank,
+      no_rekening,
+      nama_pemilik_rekening
+    `)
+    .eq('id', userId)
+    .single();
+
+  if (data) {
+    // Isi input field
+    document.getElementById('nama').value = data.nama || '';
+    document.getElementById('nama_lengkap').value = data.nama_lengkap || '';
+    document.getElementById('nik').value = data.nik || '';
+    document.getElementById('no_hp').value = data.no_hp || '';
+    document.getElementById('nama_bank').value = data.nama_bank || '';
+    document.getElementById('no_rekening').value = data.no_rekening || '';
+    document.getElementById('nama_pemilik_rekening').value = data.nama_pemilik_rekening || '';
+
+    // Cek apakah semua field sudah terisi
+    const isComplete =
+      data.nama &&
+      data.nama_lengkap &&
+      data.nik &&
+      data.no_hp &&
+      data.nama_bank &&
+      data.no_rekening &&
+      data.nama_pemilik_rekening;
+
+    if (isComplete) {
+      // Disable semua input
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => input.setAttribute('readonly', true));
+
+      // Sembunyikan tombol simpan
+      const btn = document.querySelector('button[type="submit"]');
+      if (btn) btn.style.display = 'none';
+
+      // Tampilkan status terkunci
+      document.getElementById('message').textContent = '✅ Data profil sudah lengkap dan terkunci.';
+      document.getElementById('message').className = 'success-message';
+    }
+  }
+}
+    async function updateProfile(e) {
+      e.preventDefault();
+      const nama = document.getElementById('nama').value;
+      const nama_lengkap = document.getElementById('nama_lengkap').value;
+      const nik = document.getElementById('nik').value;
+      const no_hp = document.getElementById('no_hp').value;
+      const nama_bank = document.getElementById('nama_bank').value;
+      const no_rekening = document.getElementById('no_rekening').value;
+      const nama_pemilik_rekening = document.getElementById('nama_pemilik_rekening').value;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      if (!userId) return;
+
+      const { error } = await supabase
+        .from('users')
+        .update({ nama, nama_lengkap, nik, no_hp, nama_bank, no_rekening, nama_pemilik_rekening })
+        .eq('id', userId);
+
+      const messageEl = document.getElementById('message');
+      if (error) {
+        console.error(error);
+        messageEl.textContent = '❌ Gagal menyimpan data.';
+        messageEl.className = 'error-message';
+      } else {
+        messageEl.textContent = '✅ Data berhasil disimpan.';
+        messageEl.className = 'success-message';
+      }
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', updateProfile);
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+</html>

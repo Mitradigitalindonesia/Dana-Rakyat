@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deposit IDR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-subtle: #6b7280;
+      --primary: #0ea5e9;
+      --primary-dark: #0284c7;
+      --highlight: #0ea5e9;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      background-color: var(--card-bg);
+      padding: 16px 20px;
+      font-family: 'Orbitron', sans-serif;
+      border-bottom: 1px solid var(--border);
+      z-index: 999;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: bold;
+      font-style: italic;
+      color: var(--highlight);
+      text-align: left;
+      letter-spacing: 1.5px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 20px auto 100px;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .header {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .row {
+      margin-bottom: 15px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .dropdown, .input, .address-wrapper {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background: #f9fafb;
+      box-sizing: border-box;
+    }
+
+    .input {
+      display: block;
+    }
+
+    .qr {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .info {
+      background: #e0f2fe;
+      padding: 12px;
+      font-size: 13px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      color: #0369a1;
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .button:hover {
+      background: var(--primary-dark);
+    }
+
+    .copy-icon {
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .status {
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+      color: var(--text-subtle);
+    }
+
+    .address-wrapper {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      word-break: break-all;
+      padding: 10px;
+      background: #f1f5f9;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+    }
+
+    .bottom-nav a {
+      color: var(--text-subtle);
+      text-align: center;
+      font-size: 11px;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .bottom-nav a svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+      fill: currentColor;
+    }
+
+    .bottom-nav a.active,
+    .bottom-nav a:hover {
+      color: var(--highlight);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Deposit IDR</div>
+
+    <div class="row">
+      <label>Metode Pembayaran</label>
+      <div class="dropdown">Transfer Bank (IDR)</div>
+    </div>
+
+    <div class="row">
+      <label>Rekening Tujuan</label>
+      <div class="qr">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=1234567890-BCA" alt="QR Code">
+      </div>
+      <div class="address-wrapper">
+        <span id="wallet-address">1330383603 (BCA a.n. MUCH NASRULLAH)</span>
+        <span class="copy-icon" onclick="copyAddress()">📋</span>
+      </div>
+    </div>
+
+    <div class="info">
+      Silahkan transfer ke rekening di atas. Gunakan nominal unik dan pastikan nama pengirim sesuai dengan nama yang terdaftar untuk mempercepat verifikasi. Setelah transfer, masukkan jumlah dan Nomor Referensi.
+    </div>
+
+    <div class="row">
+      <label>Masukkan Nominal Deposit (IDR)</label>
+      <input type="number" id="amount" class="input" placeholder="Contoh: 100000">
+    </div>
+
+    <div class="row">
+      <label>Masukkan Bukti Transfer / Referensi</label>
+      <input type="text" id="txid" class="input" placeholder="Contoh: TRX12345678">
+    </div>
+
+    <button class="button" onclick="submitTxID()">Kirim</button>
+    <div id="status" class="status"></div>
+
+    <button class="button" onclick="window.location.href='index.html'" style="margin-top: 10px; background: #6b7280;">Kembali ke Beranda</button>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <a href="index.html">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 10L12 3l8 7"/>
+        <path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/>
+      </svg>
+      <span>Home</span>
+    </a>
+    <a href="akun.html">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path>
+      </svg>
+      <span>Akun</span>
+    </a>
+    <a href="dompet.html" class="active">
+      <svg viewBox="0 0 24 24">
+      <path d="M2 7a2 2 0 012-2h16a1 1 0 011 1v2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a1 1 0 001-1v-2h-6a2 2 0 01-2-2v-2a2 2 0 012-2h6V6a3 3 0 00-3-3H4a3 3 0 00-3 3v1z"/>
+        <circle cx="18" cy="12" r="1"/>
+      </svg>
+      <span>Dompet</span>
+    </a>
+    <a href="mitra.html">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 12l4-4 4 4-4 4-4-4z"/>
+        <path d="M20 12l-4-4-4 4 4 4 4-4z"/>
+      </svg>
+      <span>Mitra</span>
+    </a>
+  </div>
+
+  <!-- Supabase + Script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function copyAddress() {
+      const address = document.getElementById("wallet-address").innerText;
+      try {
+        await navigator.clipboard.writeText(address);
+        document.getElementById("status").innerText = "Nomor rekening berhasil disalin!";
+      } catch {
+        document.getElementById("status").innerText = "Gagal menyalin nomor rekening.";
+      }
+    }
+
+    async function submitTxID() {
+      const amount = parseFloat(document.getElementById("amount").value);
+      const txid = document.getElementById("txid").value.trim();
+      const statusEl = document.getElementById("status");
+
+      if (!amount || !txid) {
+        statusEl.innerText = "Mohon isi nominal dan bukti transfer.";
+        return;
+      }
+
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session || !session.user) {
+          alert("Silakan login terlebih dahulu.");
+          window.location.href = "login.html";
+          return;
+        }
+
+        const userId = session.user.id;
+
+        const { error } = await supabase
+          .from("deposit_request")
+          .insert([{ user_id: userId, amount, txid, currency: 'IDR' }]);
+
+        if (error) {
+          console.error(error);
+          statusEl.innerText = "Gagal mengirim data deposit. Silakan coba lagi.";
+        } else {
+          statusEl.innerText = "Deposit berhasil dikirim. Menunggu verifikasi.";
+          document.getElementById("amount").value = "";
+          document.getElementById("txid").value = "";
+        }
+      } catch (e) {
+        console.error("Error:", e);
+        statusEl.innerText = "Terjadi kesalahan. Coba lagi.";
+      }
+    }
+  </script>
+
+</body>
+</html>

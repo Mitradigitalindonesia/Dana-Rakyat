@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Autotrade</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f4f6f8;
+      padding: 20px;
+      color: #1f2937;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0ea5e9;
+    }
+
+    .form-container {
+      max-width: 500px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .btn-tambah {
+      background: #0ea5e9;
+      color: white;
+    }
+
+    .btn-tambah:hover {
+      background: #0284c7;
+    }
+
+    .btn-tarik {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-tarik:hover {
+      background: #059669;
+    }
+
+    .info {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    .alert {
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Autotrade</h1>
+
+  <div class="form-container">
+    <div class="info" id="infoSaldo">Memuat data saldo...</div>
+
+    <div id="alertContainer"></div>
+
+    <label for="jumlahTambah">Jumlah Tambah Dana</label>
+    <input type="number" id="jumlahTambah" placeholder="Contoh: 100000" />
+
+    <button class="btn-tambah" onclick="tambahDana()">Tambahkan Dana</button>
+
+    <label for="jumlahTarik">Jumlah Tarik Dana</label>
+    <input type="number" id="jumlahTarik" placeholder="Contoh: 100000" />
+
+    <button class="btn-tarik" onclick="tarikDana()">Tarik Dana</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let userId = null;
+    let saldo = 0;
+    let investasi = 0;
+    let penghasilan = 0;
+
+    async function loadUserData() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session || !session.user) {
+        alert("Silakan login terlebih dahulu.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      userId = session.user.id;
+
+      const { data, error: fetchError } = await supabase
+        .from('users')
+        .select('saldo, investasi, penghasilan')
+        .eq('id', userId)
+        .single();
+
+      if (fetchError) {
+        showAlert("Gagal memuat data pengguna.", "error");
+        return;
+      }
+
+      saldo = data.saldo || 0;
+      investasi = data.investasi || 0;
+      penghasilan = data.penghasilan || 0;
+
+      updateInfo();
+    }
+
+    function updateInfo() {
+      document.getElementById('infoSaldo').innerHTML = `
+        Saldo Utama: <strong>${formatRupiah(saldo)}</strong><br>
+        Saldo Investasi: <strong>${formatRupiah(investasi)}</strong><br>
+        Penghasilan: <strong>${formatRupiah(penghasilan)}</strong>
+      `;
+    }
+
+    function formatRupiah(number) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+    }
+
+    function showAlert(message, type = 'success') {
+      const alertBox = document.createElement('div');
+      alertBox.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
+      alertBox.textContent = message;
+      const container = document.getElementById('alertContainer');
+      container.innerHTML = '';
+      container.appendChild(alertBox);
+      setTimeout(() => alertBox.remove(), 4000);
+    }
+
+    async function tambahDana() {
+      const jumlah = parseInt(document.getElementById('jumlahTambah').value);
+      if (isNaN(jumlah) || jumlah <= 0) {
+        showAlert("Masukkan jumlah yang valid.", "error");
+        return;
+      }
+
+      if (jumlah > saldo) {
+        showAlert("Saldo utama tidak mencukupi.", "error");
+        return;
+      }
+
+      const { error } = await supabase
+        .from('users')
+        .update({
+          saldo: saldo - jumlah,
+          investasi: investasi + jumlah
+        })
+        .eq('id', userId);
+
+      if (error) {
+        showAlert("Gagal menambahkan dana.", "error");
+        return;
+      }
+
+      saldo -= jumlah;
+      investasi += jumlah;
+      updateInfo();
+      showAlert("Dana berhasil ditambahkan ke investasi.");
+    }
+
+    async function tarikDana() {
+      const jumlah = parseInt(document.getElementById('jumlahTarik').value);
+      if (isNaN(jumlah) || jumlah <= 0) {
+        showAlert("Masukkan jumlah yang valid.", "error");
+        return;
+      }
+
+      const totalInvestasi = investasi + penghasilan;
+      if (jumlah > totalInvestasi) {
+        showAlert("Jumlah melebihi saldo investasi + penghasilan.", "error");
+        return;
+      }
+
+      // Logika: tarik dari penghasilan dulu, sisanya dari investasi
+      let sisaTarik = jumlah;
+      let penghasilanBaru = penghasilan;
+      let investasiBaru = investasi;
+
+      if (sisaTarik <= penghasilanBaru) {
+        penghasilanBaru -= sisaTarik;
+      } else {
+        sisaTarik -= penghasilanBaru;
+        penghasilanBaru = 0;
+        investasiBaru -= sisaTarik;
+      }
+
+      const { error } = await supabase
+        .from('users')
+        .update({
+          saldo: saldo + jumlah,
+          investasi: investasiBaru,
+          penghasilan: penghasilanBaru
+        })
+        .eq('id', userId);
+
+      if (error) {
+        showAlert("Gagal menarik dana.", "error");
+        return;
+      }
+
+      saldo += jumlah;
+      investasi = investasiBaru;
+      penghasilan = penghasilanBaru;
+      updateInfo();
+      showAlert("Dana berhasil ditarik ke saldo utama.");
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUserData);
+  </script>
+</body>
+</html>

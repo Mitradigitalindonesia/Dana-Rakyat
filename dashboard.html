@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-subtle: #6b7280;
+      --primary: #0ea5e9;
+      --primary-dark: #0284c7;
+      --highlight: #0ea5e9;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      background-color: var(--card-bg);
+      padding: 16px 20px;
+      font-family: 'Orbitron', sans-serif;
+      border-bottom: 1px solid var(--border);
+      z-index: 999;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: bold;
+      font-style: italic;
+      color: var(--highlight);
+      letter-spacing: 1.5px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 16px;
+      padding-bottom: 120px;
+    }
+
+    .summary-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .summary-card h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 22px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .saldo-utama {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .saldo-utama span {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--highlight);
+    }
+
+    .label-saldo {
+      font-size: 13px;
+      color: var(--text-subtle);
+    }
+
+    .mini-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 16px;
+    }
+
+    .mini {
+      text-align: center;
+    }
+
+    .mini .label {
+      font-size: 12px;
+      color: var(--text-subtle);
+    }
+
+    .mini div {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .wallet-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .wallet-actions button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .wallet-actions button:hover {
+      background: var(--primary-dark);
+    }
+
+    .berita-section {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 80px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .berita-section h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: var(--text-main);
+    }
+
+    #berita-container div {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+    }
+
+    .bottom-nav a {
+      color: var(--text-subtle);
+      text-align: center;
+      font-size: 11px;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .bottom-nav a svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+      fill: currentColor;
+    }
+
+    .bottom-nav a.active,
+    .bottom-nav a:hover {
+      color: var(--highlight);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-header">
+    <div class="logo-text" id="userGreeting">Hallo, ...</div>
+  </div>
+
+  <div class="container">
+
+    <div class="summary-card">
+      <h2>Saldo Utama</h2>
+      <div class="saldo-utama">
+        <span id="saldo">Rp 0</span>
+        <div class="label-saldo"></div>
+      </div>
+      <div class="wallet-actions">
+        <button onclick="window.location.href='deposit.html'">Deposit</button>
+        <button onclick="window.location.href='withdrawal.html'">Penarikan</button>
+        <button onclick="window.location.href='bot.html'">Ai Agent</button>
+      </div>
+    </div>
+
+    <section class="berita-section">
+      <h2>Crypto News</h2>
+      <div id="berita-container">Memuat berita...</div>
+    </section>
+  </div>
+  <div class="bottom-nav">
+    <a href="dashboard.html" class="active">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 10L12 3l8 7"></path><path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"></path></svg>
+      <span>Home</span>
+    </a>
+    <a href="akun.html">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg>
+      <span>Akun</span>
+    </a>
+    <a href="dompet.html">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M2 7a2 2 0 012-2h16a1 1 0 011 1v2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a1 1 0 001-1v-2h-6a2 2 0-2-2v-2a2 2 0-2-2h6V6a3 3 0-3-3H4a3 3 0-2 2.83V7z"></path><circle cx="18" cy="12" r="1"></circle></svg>
+      <span>Dompet</span>
+    </a>
+    <a href="mitra.html">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 12l4-4 4 4-4 4-4-4z"></path><path d="M20 12l-4-4-4 4 4 4 4-4z"></path>
+      </svg>
+      <span>Mitra</span>
+    </a>
+  </div>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function loadPortfolio() {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !session || !session.user) {
+          alert("Silakan login terlebih dahulu.");
+          window.location.href = "login.html";
+          return;
+        }
+
+        const userId = session.user.id;
+        const { data: profile, error: profileError } = await supabase
+          .from('users')
+          .select('nama, saldo')
+          .eq('id', userId)
+          .single();
+
+        if (profileError) throw profileError;
+
+        document.getElementById('userGreeting').textContent = 'Hallo, ' + (profile.nama || 'User');
+        document.getElementById('saldo').textContent = formatRupiah(profile.saldo);
+      } catch (err) {
+        console.error('Gagal memuat data portofolio:', err.message);
+        alert("Gagal memuat data. Silakan coba lagi.");
+      }
+    }
+
+    function formatRupiah(number) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(number || 0);
+    }
+
+    // Load berita dari CoinTelegraph
+    function loadBeritaCrypto() {
+      fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('berita-container');
+          container.innerHTML = '';
+          data.items.slice(0, 6).forEach(item => {
+            const img = item.enclosure?.link || '';
+            const div = document.createElement('div');
+            div.style = `
+              padding: 10px;
+              display: flex;
+              gap: 10px;
+              margin-bottom: 12px;
+            `;
+            div.innerHTML = `
+              <img src="${img}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 6px;">
+              <div style="flex:1">
+                <h3 style="margin:0 0 6px; font-size: 14px;">
+                  <a href="${item.link}" target="_blank" style="color:#0ea5e9; text-decoration:none;">
+                    ${item.title}
+                  </a>
+                </h3>
+                <div style="font-size: 12px; color: #888;">${new Date(item.pubDate).toLocaleString('id-ID')}</div>
+                <div style="font-size:13px; color:#444;">${item.description.slice(0, 100)}...</div>
+              </div>
+            `;
+            container.appendChild(div);
+          });
+        })
+        .catch(err => {
+          document.getElementById('berita-container').innerText = '❌ Gagal memuat berita.';
+          console.error(err);
+        });
+    }
+
+    // Jalankan saat halaman siap
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPortfolio();
+      loadBeritaCrypto();
+    });
+  </script>
+</body>
+</html>

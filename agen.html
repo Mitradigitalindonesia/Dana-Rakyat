@@ -60,22 +60,28 @@
     }
 
     .portfolio-summary {
-      background-color: var(--card-bg);
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-    .portfolio-summary h2 {
-      margin: 0;
-      font-size: 28px;
-      color: var(--text-main);
-    }
-    .yield {
-      color: var(--highlight);
-      margin-top: 4px;
-      font-size: 14px;
-    }
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+.portfolio-summary:hover {
+  transform: translateY(-2px);
+}
+.portfolio-summary h2 {
+  margin: 0;
+  font-size: 32px;
+  color: white;
+}
+.yield {
+  color: #d1fae5; /* Hijau muda pastel */
+  font-weight: 500;
+  margin-top: 4px;
+  font-size: 14px;
+}
 
     .action-buttons {
       display: flex;

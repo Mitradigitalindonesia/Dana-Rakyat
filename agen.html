@@ -364,7 +364,17 @@
       </div>
     </div>
   </div>
-
+<!-- Modal Konfirmasi Stop Bot -->
+<div id="stopBotModal" class="modal">
+  <div class="modal-content">
+    <div style="text-align: right; cursor: pointer; font-size: 18px;" onclick="closeStopModal()">×</div>
+    <p>Apakah Anda yakin ingin menghentikan bot ini?</p>
+    <div class="modal-footer">
+      <button class="close" onclick="closeStopModal()">Batal</button>
+      <button class="submit" onclick="confirmStopBot()">Ya, Hentikan</button>
+    </div>
+  </div>
+</div>
    <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <a href="dashboard.html" class="active">
@@ -411,7 +421,24 @@
       minimumFractionDigits: 0
     }).format(number || 0);
   }
+let selectedBotToStop = null;
 
+function openStopModal(botId) {
+  selectedBotToStop = botId;
+  document.getElementById('stopBotModal').style.display = 'block';
+}
+
+function closeStopModal() {
+  selectedBotToStop = null;
+  document.getElementById('stopBotModal').style.display = 'none';
+}
+
+async function confirmStopBot() {
+  if (!selectedBotToStop) return;
+
+  await stopBot(selectedBotToStop);
+  closeStopModal();
+}
   let currentUser = null;
   let activeBots = [];
   let simulatedProfits = {}; // Menyimpan PnL sementara per bot
@@ -449,14 +476,12 @@
   card.className = 'bot-card';
   card.setAttribute('data-bot-id', bot.id);
 
-  // Hitung persentase PnL
   const profit = bot.profit || 0;
   const investasi = bot.investasi || 1;
   const pnlPercent = (profit / investasi) * 100;
   const formattedPercent = (pnlPercent >= 0 ? '+' : '') + pnlPercent.toFixed(2) + '%';
   const pnlColor = pnlPercent >= 0 ? 'green' : 'red';
 
-  // Tentukan warna background
   if (pnlPercent >= 0.01) {
     card.classList.add('green-bg');
   } else if (pnlPercent <= -0.01) {
@@ -464,7 +489,6 @@
   }
 
   card.innerHTML = `
-    <h3 style="text-align: center; font-size: 20px; margin: 0 0 12px;">${bot.asset}</h3>
     <div style="display: flex; align-items: center; gap: 3px;">
       <img src="${getBotIconByLeverage(bot.leverage)}" alt="Bot Icon" style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px;">
       <div style="display: flex; justify-content: space-between; width: 100%; font-size: 16px;">
@@ -479,8 +503,10 @@
         </div>
       </div>
     </div>
-    <button class="stop-btn" onclick="stopBot('${bot.id}')">Stop Bot</button>
   `;
+
+  // Tambahkan event click untuk membuka modal stop
+  card.addEventListener('click', () => openStopModal(bot.id));
 
   return card;
 }

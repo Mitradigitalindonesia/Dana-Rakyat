@@ -816,24 +816,37 @@ function getBotIconByLeverage(leverage) {
     }
 
     for (const bot of bots) {
+      // Pakai profit dari cache, jangan paksa 0
+      const prevProfit = simulatedProfits[bot.id] ?? bot.profit ?? 0;
+
       const win = Math.random() < 0.5;
       const direction = win ? 1.0025 : -1;
-
-      const baseChange = bot.investasi * 0.000001; // 0.0001%
+      const baseChange = bot.investasi * 0.000001; 
       const leverage = bot.leverage || 1;
       const change = baseChange * leverage * direction;
 
-      // Ambil profit dari cache
-      const prevProfit = simulatedProfits[bot.id] || 0;
       const newProfit = prevProfit + change;
 
-      simulatedProfits[bot.id] = newProfit; // Simpan ke cache
+      simulatedProfits[bot.id] = newProfit;
 
       updateBotCard({ id: bot.id, profit: newProfit, status: 'aktif' });
     }
-  }, 1000); // 1000ms = 1 detik
+  }, 1000);
 }
+function saveSimulatedProfitsPeriodically() {
+  setInterval(async () => {
+    for (const [botId, profit] of Object.entries(simulatedProfits)) {
+      const { error } = await supabase
+        .from('bots')
+        .update({ profit })
+        .eq('id', botId);
 
+      if (error) {
+        console.error('Gagal update profit bot:', botId, error);
+      }
+    }
+  }, 10000);
+}
   // Simpan ke database saat user keluar
   window.addEventListener('beforeunload', async (event) => {
     const updates = Object.entries(simulatedProfits).map(([botId, profit]) => ({
@@ -848,11 +861,11 @@ function getBotIconByLeverage(leverage) {
         .eq('id', update.id);
     }
   });
-
   document.addEventListener('DOMContentLoaded', () => {
-    loadBotsAndSubscribe();
-    startProfitSimulation();
-  });
+  loadBotsAndSubscribe();
+  startProfitSimulation();
+  saveSimulatedProfitsPeriodically();
+});
   </script>
 </body>
 </html>

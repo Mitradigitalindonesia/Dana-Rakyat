@@ -211,13 +211,13 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      padding: 20px;
-      border-radius: 12px;
+      padding: 16px;
+      border-radius: 8px;
       width: 90%;
-      max-width: 400px;
+      max-width: 300px;
     }
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .form-group label {
       display: block;
@@ -232,7 +232,7 @@
       border: 1px solid var(--border);
       background: var(--bg-main);
       color: var(--text-main);
-      font-size: 14px;
+      font-size: 12px;
     }
     .modal-footer {
       text-align: right;
@@ -288,57 +288,68 @@
 }
 .floating-add-btn {
   position: fixed;
-  bottom: 70px; /* Di atas bottom-nav */
+  bottom: 70px; /* posisinya tetap */
   right: 16px;
-  left: 16px;
-  z-index: 999;
-  background-color: var(--primary);
-  color: white;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--bg-main);
   border: none;
-  border-radius: 12px;
-  padding: 16px;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: background 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 1000; /* di atas nav */
+  transition: background-color 0.3s;
 }
+
 .floating-add-btn:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--highlight);
 }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
-      z-index: 1000;
-    }
-    .bottom-nav a {
-      color: var(--text-subtle);
-      text-align: center;
-      font-size: 11px;
-      text-decoration: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: color 0.2s;
-    }
-    .bottom-nav a svg {
-      width: 24px;
-      height: 24px;
-      margin-bottom: 4px;
-      fill: currentColor;
-    }
-    .bottom-nav a.active,
-    .bottom-nav a:hover {
-      color: var(--highlight);
-    }
+
+.floating-add-btn img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  pointer-events: none; /* supaya klik tombol tetap diterima */
+}
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 56px;
+  background-color: var(--bg-main);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 900; /* di bawah tombol floating */
+}
+
+.bottom-nav a {
+  color: var(--text-subtle);
+  text-align: center;
+  font-size: 11px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.bottom-nav a svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  fill: currentColor;
+}
+
+.bottom-nav a.active,
+.bottom-nav a:hover {
+  color: var(--highlight);
+}
   </style>
 </head>
 <body>
@@ -357,7 +368,11 @@
 <!-- ✅ Modal dan tombol DILUAR dari container dan botsContainer -->
 <div id="botModal" class="modal">
   <div class="modal-content">
-    <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;" onclick="closeModal()">×</div>
+    <div style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:9px;" onclick="closeModal()">×</div>
+    <div class="form-group">
+  <label>Saldo Tersedia:</label>
+  <div id="available-balance" style="font-weight: bold; color: #0284c7;">Rp 0</div>
+</div>
     <div class="form-group">
       <label>Investasi (Rp):</label>
       <input type="number" id="investment" value="10000" />
@@ -393,8 +408,9 @@
 </div>
 
 <!-- ✅ Tombol tambah bot -->
-<button class="floating-add-btn" onclick="openModal()">+ Tambah Ai Agent</button>
-
+<button class="floating-add-btn" onclick="openModal()">
+  <img src="agen.png" alt="Add" />
+</button>
 <!-- ✅ Modal stop bot -->
 <div id="stopBotModal" class="modal">
   <div class="modal-content">
@@ -488,19 +504,42 @@ async function confirmStopBot() {
   async function loadPortfolioSummary() {
   if (!currentUser) return;
 
-  const { data: profile, error } = await supabase
+  // Ambil saldo & penghasilan user
+  const { data: profile, error: profileError } = await supabase
     .from('users')
-    .select('saldo, penghasilan')
+    .select('penghasilan')
     .eq('id', currentUser.id)
     .single();
 
-  if (error || !profile) {
-    console.error("Gagal memuat portfolio:", error);
+  if (profileError || !profile) {
+    console.error("Gagal memuat data user:", profileError);
     return;
   }
 
-  document.getElementById('totalBalance').textContent = formatRupiah(profile.saldo);
-  document.getElementById('totalYield').textContent = 'Total Keuntungan ' + formatRupiah(profile.penghasilan);
+  // Ambil semua bot aktif user
+  const { data: bots, error: botsError } = await supabase
+    .from('bots')
+    .select('investasi, profit')
+    .eq('user_id', currentUser.id)
+    .eq('status', 'aktif');
+
+  if (botsError) {
+    console.error("Gagal memuat data bot:", botsError);
+    return;
+  }
+
+  let totalInvestasi = 0;
+  let totalProfit = 0;
+
+  bots.forEach(bot => {
+    totalInvestasi += bot.investasi || 0;
+    totalProfit += bot.profit || 0;
+  });
+
+  const totalPortofolio = totalInvestasi + totalProfit;
+
+  document.getElementById('totalBalance').textContent = formatRupiah(totalPortofolio);
+  document.getElementById('totalYield').textContent = 'Total Keuntungan ' + formatRupiah(profile.penghasilan || 0);
 }
   function createBotCard(bot) {
   const card = document.createElement('div');
@@ -522,13 +561,13 @@ async function confirmStopBot() {
   card.innerHTML = `
     <div style="display: flex; align-items: center; gap: 3px;">
       <img src="${getBotIconByLeverage(bot.leverage)}" alt="Bot Icon" style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px;">
-      <div style="display: flex; justify-content: space-between; width: 100%; font-size: 16px;">
+      <div style="display: flex; justify-content: space-between; width: 100%; font-size: 13px;">
         <div>
           <div>Investasi</div>
           <strong>${formatRupiah(bot.investasi)}</strong>
         </div>
         <div style="text-align: right;">
-          <div>PNL</div>
+          <div>Laba Rugi</div>
           <strong class="profit">${formatRupiah(profit)}</strong>
           <div class="pnl-percentage ${pnlColor}">${formattedPercent}</div>
         </div>
@@ -792,14 +831,32 @@ function getBotIconByLeverage(leverage) {
   }
 }
 
-  function openModal() {
+  async function openModal() {
   document.getElementById('botModal').style.display = 'block';
-  // changeAsset(); // tidak perlu lagi
+
+  // Ambil saldo user dan tampilkan
+  if (!currentUser) {
+    if (!await loadUser()) return;
+  }
+
+  const { data: profile, error } = await supabase
+    .from('users')
+    .select('saldo')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (error || !profile) {
+    document.getElementById('available-balance').textContent = "Gagal memuat saldo";
+    return;
+  }
+
+  document.getElementById('available-balance').textContent = formatRupiah(profile.saldo || 0);
 }
 
   function closeModal() {
-    document.getElementById('botModal').style.display = 'none';
-  }
+  document.getElementById('botModal').style.display = 'none';
+  document.getElementById('available-balance').textContent = 'Rp 0';
+}
   function startProfitSimulation() {
   setInterval(async () => {
     if (!currentUser) return;
@@ -820,7 +877,7 @@ function getBotIconByLeverage(leverage) {
       const prevProfit = simulatedProfits[bot.id] ?? bot.profit ?? 0;
 
       const win = Math.random() < 0.5;
-      const direction = win ? 1.0025 : -1;
+      const direction = win ? 1.0125 : -1;
       const baseChange = bot.investasi * 0.000001; 
       const leverage = bot.leverage || 1;
       const change = baseChange * leverage * direction;

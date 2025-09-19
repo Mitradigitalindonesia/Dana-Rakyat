@@ -1,1 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg-main: #f9fafb;
+  --card-bg: #ffffff;
+  --text-main: #1f2937;
+  --text-subtle: #6b7280;
+  --primary: #0ea5e9;
+  --highlight: #0ea5e9;
+  --profit: #22c55e;
+  --loss: #ef4444;
+  --border: #e5e7eb;
+}
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin:0; padding:0; }
+.container { max-width:700px; margin:auto; padding:16px; padding-bottom:120px; }
+.portfolio-summary {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7); /* gradasi biru */
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.portfolio-summary .summary-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.portfolio-summary .summary-value {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.portfolio-summary .summary-pl {
+  font-size: 14px;
+  color: #d1fae5; /* hijau pastel untuk profit */
+  font-weight: 500;
+}
+.coin-list { display:flex; flex-direction:column; gap:10px; }
+.coin-card { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-radius:12px; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.05); transition: background 0.3s; }
+.coin-left { display:flex; gap:12px; align-items:center; min-width:0; }
+.coin-left img { width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+.coin-text { display:flex; flex-direction:column; overflow:hidden; }
+.coin-text .name { font-weight:bold; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.coin-text .desc { font-size:12px; color:#6b7280; margin-top:2px; }
+.coin-right { display:flex; flex-direction:column; align-items:flex-end; gap:2px; min-width:70px; }
+.coin-right .amount { font-weight:bold; font-size:14px; }
+.coin-right .idr { font-size:12px; color:#6b7280; }
+.coin-right .pl { font-size:12px; font-weight:bold; }
+.coin-card.profit-bg { background-color: rgba(34,197,94,0.1); }
+.coin-card.loss-bg { background-color: rgba(239,68,68,0.1); }
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--card-bg); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -1px 4px rgba(0,0,0,0.05); z-index:1000; }
+.bottom-nav a { color:var(--text-subtle); text-align:center; font-size:11px; text-decoration:none; display:flex; flex-direction:column; align-items:center; transition:color 0.2s; }
+.bottom-nav a svg { width:24px; height:24px; margin-bottom:4px; fill:currentColor; }
+.bottom-nav a.active, .bottom-nav a:hover { color:var(--highlight); }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="summary-card portfolio-summary">
+  <div class="summary-text">
+    <div class="summary-title">Total Nilai Portofolio</div>
+    <div class="summary-value" id="totalPortfolio">Rp 0</div>
+    <div class="summary-pl" id="totalPL">Rp 0</div>
+  </div>
+</div>
 
+  <div class="summary-card">
+    <h2>Alokasi Dana</h2>
+    <canvas id="allocationChart" class="chart-container"></canvas>
+  </div>
+
+  <div class="summary-card">
+    <h2>Daftar Coin</h2>
+    <div id="coinList" class="coin-list">Memuat koin...</div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <a href="dashboard.html" class="active"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 10L12 3l8 7"></path><path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"></path></svg><span>Home</span></a>
+  <a href="akun.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg><span>Akun</span></a>
+  <a href="dompet.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M2 7a2 2 0 012-2h16a1 1 0 011 1v2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a1 1 0 001-1v-2h-6a2 2 0-2-2v-2a2 2 0-2-2h6V6a3 3 0-3-3H4a3 3 0-2 2.83V7z"></path><circle cx="18" cy="12" r="1"></circle></svg><span>Dompet</span></a>
+  <a href="mitra.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 12l4-4 4 4-4 4-4-4z"></path><path d="M20 12l-4-4-4 4 4 4 4-4z"></path></svg><span>Mitra</span></a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function formatRupiah(num){
+    return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(num||0);
+  }
+
+  async function fetchTopCoins() {
+    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=200&page=1');
+    const data = await res.json();
+    return data;
+  }
+
+  async function loadPortfolio() {
+    const { data:{ session } } = await supabase.auth.getSession();
+    if(!session){ window.location.href='login.html'; return; }
+    const userId = session.user.id;
+    const { data: portfolio } = await supabase.from('portfolio').select('*').eq('user_id', userId);
+    const topCoins = await fetchTopCoins();
+
+    let totalCost = 0, totalCurrent = 0;
+    const list = document.getElementById('coinList');
+    list.innerHTML = '';
+    const labels = [], values = [];
+
+    if(!portfolio || portfolio.length===0){
+      topCoins.forEach(c=>{
+        labels.push(c.symbol.toUpperCase());
+        values.push(c.current_price);
+        const div = document.createElement('div');
+        div.className = 'coin-card';
+        div.innerHTML = `
+          <div class="coin-left">
+            <img src="${c.image}" />
+            <div class="coin-text">
+              <div class="name">${c.symbol.toUpperCase()}</div>
+              <div class="desc">${c.name} <br>Unrealized P&L</div>
+            </div>
+          </div>
+          <div class="coin-right">
+            <div class="amount">0</div>
+            <div class="idr">${formatRupiah(0)}</div>
+            <div class="pl" style="color:var(--text-subtle)">-</div>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      document.getElementById('totalPortfolio').textContent=formatRupiah(0);
+      document.getElementById('totalPL').textContent=formatRupiah(0);
+    } else {
+      portfolio.forEach(c=>{
+        const coinInfo = topCoins.find(tc=>tc.symbol.toLowerCase()===c.coin_symbol.toLowerCase());
+        const currentPrice = coinInfo ? coinInfo.current_price : c.avg_price;
+        const img = coinInfo ? coinInfo.image : 'https://via.placeholder.com/40';
+
+        totalCost += c.amount*c.avg_price;
+        totalCurrent += c.amount*currentPrice;
+
+        labels.push(c.coin_symbol.toUpperCase());
+        values.push(c.amount*currentPrice);
+
+        const plValue = c.amount*(currentPrice - c.avg_price);
+        const div=document.createElement('div');
+        div.className='coin-card ' + (plValue>=0?'profit-bg':'loss-bg');
+        div.innerHTML=`
+          <div class="coin-left">
+            <img src="${img}" />
+            <div class="coin-text">
+              <div class="name">${c.coin_symbol.toUpperCase()}</div>
+              <div class="desc">${c.coin_name} <br>Unrealized P&L</div>
+            </div>
+          </div>
+          <div class="coin-right">
+            <div class="amount">${c.amount}</div>
+            <div class="idr">${formatRupiah(c.amount*currentPrice)}</div>
+            <div class="pl" style="color:${plValue>=0?'var(--profit)':'var(--loss)'}">${plValue>=0?'+':''}${formatRupiah(plValue)}</div>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      // Update summary
+      document.getElementById('totalPortfolio').textContent=formatRupiah(totalCurrent);
+      const pl = totalCurrent - totalCost;
+      const plElem = document.getElementById('totalPL');
+      plElem.textContent=formatRupiah(pl);
+      plElem.style.color=(pl>=0)?'var(--profit)':'var(--loss)';
+    }
+
+    // Update chart
+    new Chart(document.getElementById('allocationChart'), {
+      type:'doughnut',
+      data:{labels, datasets:[{data:values, backgroundColor:labels.map((_,i)=>`hsl(${i*60},70%,60%)`)}]},
+      options:{responsive:true, plugins:{legend:{position:'bottom'}}}
+    });
+  }
+
+  await loadPortfolio();
+  setInterval(loadPortfolio, 30000);
+});
+</script>
+</body>
+</html>

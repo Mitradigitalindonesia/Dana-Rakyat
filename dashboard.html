@@ -165,7 +165,7 @@
       <div class="wallet-actions">
         <button onclick="window.location.href='deposit.html'">Deposit</button>
         <button onclick="window.location.href='withdrawal.html'">Penarikan</button>
-        <button onclick="window.location.href='aiagen.html'">Ai Agent</button>
+        <button onclick="window.location.href='agen.html'">Ai Agent</button>
       </div>
     </div>
     <div id="market-container" class="summary-card">Memuat data market...</div>
@@ -312,9 +312,18 @@
       });
       document.getElementById('coinModal').style.display = "flex";
     }
-
+// Close modal ketika klik di luar modal-content
+document.getElementById('coinModal').addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal')) {
+    document.getElementById('coinModal').style.display = "none";
+    selectedCoin = null;
+    document.getElementById('tradeAmount').value = "";
+    document.getElementById('tradeInfo').textContent = "Masukkan jumlah koin";
+  }
+});
     // Trade handler
-    async function handleTrade(side) {
+    // Trade handler
+async function handleTrade(side) {
   if (!selectedCoin) return;
 
   const { data: { session } } = await supabase.auth.getSession();
@@ -333,6 +342,9 @@
   let price = selectedCoin.current_price;
   let total = price * amount;
 
+  // Hitung fee 1%
+  let fee = total * 0.01;
+
   // Ambil saldo user
   let { data: profile } = await supabase
     .from('users')
@@ -343,12 +355,13 @@
   let saldo = profile.saldo;
 
   if (side === "BUY") {
-    if (saldo < total) {
+    let totalWithFee = total + fee;
+    if (saldo < totalWithFee) {
       alert("Saldo tidak cukup!");
       return;
     }
 
-    saldo -= total;
+    saldo -= totalWithFee;
 
     // Cek apakah coin sudah ada di portfolio
     const { data: existingCoin } = await supabase
@@ -359,7 +372,6 @@
       .single();
 
     if (existingCoin) {
-      // Update jumlah dan avg_price
       const newAmount = existingCoin.amount + amount;
       const newAvgPrice = ((existingCoin.avg_price * existingCoin.amount) + (price * amount)) / newAmount;
 
@@ -370,7 +382,6 @@
       .eq('user_id', userId)
       .eq('coin_symbol', selectedCoin.symbol.toUpperCase());
     } else {
-      // Insert jika coin belum ada
       await supabase.from('portfolio').insert({
         user_id: userId,
         coin_symbol: selectedCoin.symbol.toUpperCase(),
@@ -380,7 +391,6 @@
       });
     }
   } else if (side === "SELL") {
-    // Cek apakah coin ada di portfolio dan jumlah cukup
     const { data: portfolio } = await supabase
       .from('portfolio')
       .select('amount')
@@ -393,7 +403,8 @@
       return;
     }
 
-    saldo += total;
+    let totalAfterFee = total - fee;
+    saldo += totalAfterFee;
 
     const remainingAmount = portfolio.amount - amount;
     if (remainingAmount > 0) {
@@ -403,7 +414,6 @@
       .eq('user_id', userId)
       .eq('coin_symbol', selectedCoin.symbol.toUpperCase());
     } else {
-      // Jika habis, hapus record
       await supabase.from('portfolio')
         .delete()
         .eq('user_id', userId)
@@ -414,7 +424,7 @@
   // Update saldo user
   await supabase.from('users').update({ saldo }).eq('id', userId);
 
-  // Catat order
+  // Catat order dengan fee
   await supabase.from('orders').insert({
     user_id: userId,
     coin_symbol: selectedCoin.symbol.toUpperCase(),
@@ -422,19 +432,18 @@
     side,
     price,
     amount,
-    total
+    total,
+    fee // simpan fee agar transparan
   });
 
-  alert(`${side} ${amount} ${selectedCoin.symbol.toUpperCase()} berhasil!`);
+  alert(`${side} ${amount} ${selectedCoin.symbol.toUpperCase()} berhasil! Fee: ${formatRupiah(fee)}`);
 
-  // Reset input dan info
+  // Reset input
   document.getElementById('tradeAmount').value = "";
   document.getElementById('tradeInfo').textContent = "Masukkan jumlah koin";
 
-  // Refresh saldo
   loadPortfolio();
 }
-
     // Preview total harga saat user ketik jumlah
     document.addEventListener('input', (e) => {
       if (e.target.id === 'tradeAmount' && selectedCoin) {

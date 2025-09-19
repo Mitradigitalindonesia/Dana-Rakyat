@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-main: #f4f6f8;
+      --bg-main: #f9fafb;
       --card-bg: #ffffff;
       --text-main: #1f2937;
       --text-subtle: #6b7280;
@@ -16,7 +16,6 @@
       --highlight: #0ea5e9;
       --border: #e5e7eb;
     }
-
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--bg-main);
@@ -24,33 +23,6 @@
       margin: 0;
       padding: 0;
     }
-
-    .app-header {
-      position: sticky;
-      top: 0;
-      background-color: var(--card-bg);
-      padding: 16px 20px;
-      font-family: 'Orbitron', sans-serif;
-      border-bottom: 1px solid var(--border);
-      z-index: 999;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-    }
-
-    .logo-text {
-      font-size: 22px;
-      font-weight: bold;
-      font-style: italic;
-      color: var(--highlight);
-      letter-spacing: 1.5px;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 16px;
-      padding-bottom: 120px;
-    }
-
     .summary-card {
       background: var(--card-bg);
       border-radius: 16px;
@@ -58,56 +30,32 @@
       margin-bottom: 20px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
-
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 16px;
+      padding-bottom: 120px;
+    }
     .summary-card h2 {
-      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
       font-size: 22px;
       margin-bottom: 12px;
       text-align: center;
     }
-
     .saldo-utama {
       text-align: center;
       margin-bottom: 12px;
     }
-
     .saldo-utama span {
       font-size: 28px;
       font-weight: bold;
       color: var(--highlight);
     }
-
-    .label-saldo {
-      font-size: 13px;
-      color: var(--text-subtle);
-    }
-
-    .mini-stats {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 16px;
-    }
-
-    .mini {
-      text-align: center;
-    }
-
-    .mini .label {
-      font-size: 12px;
-      color: var(--text-subtle);
-    }
-
-    .mini div {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
     .wallet-actions {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
     }
-
     .wallet-actions button {
       flex: 1;
       padding: 12px;
@@ -119,30 +67,9 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-
     .wallet-actions button:hover {
       background: var(--primary-dark);
     }
-
-    .berita-section {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 80px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .berita-section h2 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 20px;
-      margin-bottom: 16px;
-      color: var(--text-main);
-    }
-
-    #berita-container div {
-      border-bottom: 1px solid var(--border);
-    }
-
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -156,7 +83,6 @@
       box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
       z-index: 1000;
     }
-
     .bottom-nav a {
       color: var(--text-subtle);
       text-align: center;
@@ -167,33 +93,74 @@
       align-items: center;
       transition: color 0.2s;
     }
-
     .bottom-nav a svg {
       width: 24px;
       height: 24px;
       margin-bottom: 4px;
       fill: currentColor;
     }
-
     .bottom-nav a.active,
     .bottom-nav a:hover {
       color: var(--highlight);
     }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 16px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .chart-container {
+      width: 100%;
+      height: 300px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .modal-actions button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-buy {
+      background: #22c55e;
+      color: white;
+    }
+    .btn-sell {
+      background: #ef4444;
+      color: white;
+    }
   </style>
 </head>
 <body>
-
-  <div class="app-header">
-    <div class="logo-text" id="userGreeting">Hallo, ...</div>
-  </div>
-
   <div class="container">
-
     <div class="summary-card">
       <h2>Saldo Utama</h2>
       <div class="saldo-utama">
-        <span id="saldo">Rp 0</span>
-        <div class="label-saldo"></div>
+        <span id="saldo">Rp 0</span>
       </div>
       <div class="wallet-actions">
         <button onclick="window.location.href='deposit.html'">Deposit</button>
@@ -201,12 +168,9 @@
         <button onclick="window.location.href='aiagen.html'">Ai Agent</button>
       </div>
     </div>
-
-    <section class="berita-section">
-      <h2>Crypto News</h2>
-      <div id="berita-container">Memuat berita...</div>
-    </section>
+    <div id="market-container" class="summary-card">Memuat data market...</div>
   </div>
+
   <div class="bottom-nav">
     <a href="dashboard.html" class="active">
       <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 10L12 3l8 7"></path><path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"></path></svg>
@@ -221,12 +185,34 @@
       <span>Dompet</span>
     </a>
     <a href="mitra.html">
-      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 12l4-4 4 4-4 4-4-4z"></path><path d="M20 12l-4-4-4 4 4 4 4-4z"></path>
-      </svg>
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 12l4-4 4 4-4 4-4-4z"></path><path d="M20 12l-4-4-4 4 4 4 4-4z"></path></svg>
       <span>Mitra</span>
     </a>
   </div>
 
+  <!-- Modal Chart -->
+  <div class="modal" id="coinModal">
+    <div class="modal-content">
+      <div class="modal-header" id="modalTitle">Chart</div>
+      <div id="tradingview_chart" class="chart-container"></div>
+
+      <!-- Input jumlah -->
+      <div style="margin: 12px 0; text-align:center;">
+        <label for="tradeAmount" style="font-size:13px; font-weight:bold;">Jumlah (dalam koin)</label>
+        <input id="tradeAmount" type="number" step="0.0001" min="0.0001"
+               style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:6px; margin-top:6px;" />
+        <div id="tradeInfo" style="margin-top:6px; font-size:12px; color:#6b7280;">Masukkan jumlah koin</div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-buy" onclick="handleTrade('BUY')">Beli</button>
+        <button class="btn-sell" onclick="handleTrade('SELL')">Jual</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TradingView JS -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
@@ -234,33 +220,9 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let selectedCoin = null;
 
-    async function loadPortfolio() {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError || !session || !session.user) {
-          alert("Silakan login terlebih dahulu.");
-          window.location.href = "login.html";
-          return;
-        }
-
-        const userId = session.user.id;
-        const { data: profile, error: profileError } = await supabase
-          .from('users')
-          .select('nama, saldo')
-          .eq('id', userId)
-          .single();
-
-        if (profileError) throw profileError;
-
-        document.getElementById('userGreeting').textContent = 'Hallo, ' + (profile.nama || 'User');
-        document.getElementById('saldo').textContent = formatRupiah(profile.saldo);
-      } catch (err) {
-        console.error('Gagal memuat data portofolio:', err.message);
-        alert("Gagal memuat data. Silakan coba lagi.");
-      }
-    }
-
+    // Format IDR
     function formatRupiah(number) {
       return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -269,47 +231,227 @@
       }).format(number || 0);
     }
 
-    // Load berita dari CoinTelegraph
-    function loadBeritaCrypto() {
-      fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss')
+    // Load saldo user
+    async function loadPortfolio() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || !session.user) {
+          window.location.href = "login.html";
+          return;
+        }
+        const userId = session.user.id;
+        const { data: profile } = await supabase
+          .from('users')
+          .select('saldo')
+          .eq('id', userId)
+          .single();
+        document.getElementById('saldo').textContent = formatRupiah(profile.saldo);
+      } catch (err) {
+        console.error('Gagal memuat saldo:', err.message);
+      }
+    }
+
+    // Load market crypto
+    function loadMarketCrypto() {
+      fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=25&page=1&sparkline=false')
         .then(res => res.json())
         .then(data => {
-          const container = document.getElementById('berita-container');
+          const container = document.getElementById('market-container');
           container.innerHTML = '';
-          data.items.slice(0, 6).forEach(item => {
-            const img = item.enclosure?.link || '';
+          data.forEach(coin => {
             const div = document.createElement('div');
             div.style = `
               padding: 10px;
               display: flex;
+              align-items: center;
               gap: 10px;
-              margin-bottom: 12px;
+              border-bottom: 1px solid #e5e7eb;
+              cursor: pointer;
             `;
             div.innerHTML = `
-              <img src="${img}" style="width: 100px; height: 70px; object-fit: cover; border-radius: 6px;">
+              <img src="${coin.image}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
               <div style="flex:1">
-                <h3 style="margin:0 0 6px; font-size: 14px;">
-                  <a href="${item.link}" target="_blank" style="color:#0ea5e9; text-decoration:none;">
-                    ${item.title}
-                  </a>
-                </h3>
-                <div style="font-size: 12px; color: #888;">${new Date(item.pubDate).toLocaleString('id-ID')}</div>
-                <div style="font-size:13px; color:#444;">${item.description.slice(0, 100)}...</div>
+                <div style="font-weight:bold; font-size:14px;">${coin.name} (${coin.symbol.toUpperCase()})</div>
+                <div style="font-size:12px; color:#6b7280;">Rank #${coin.market_cap_rank}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-weight:bold; color:#1f2937;">Rp ${coin.current_price.toLocaleString('id-ID')}</div>
+                <div style="font-size:12px; color:${coin.price_change_percentage_24h >= 0 ? 'green' : 'red'};">
+                  ${coin.price_change_percentage_24h.toFixed(2)}%
+                </div>
               </div>
             `;
+            div.addEventListener('click', () => openModal(coin));
             container.appendChild(div);
           });
         })
         .catch(err => {
-          document.getElementById('berita-container').innerText = '❌ Gagal memuat berita.';
+          document.getElementById('market-container').innerText = '❌ Gagal memuat market.';
           console.error(err);
         });
     }
 
-    // Jalankan saat halaman siap
+    // Open modal chart
+    function openModal(coin) {
+      selectedCoin = coin;
+      document.getElementById('modalTitle').textContent = `${coin.name} Chart`;
+      document.getElementById('tradingview_chart').innerHTML = "";
+      new TradingView.widget({
+        "container_id": "tradingview_chart",
+        "autosize": true,
+        "symbol": `BINANCE:${coin.symbol.toUpperCase()}USDT`,
+        "interval": "60",
+        "timezone": "Etc/UTC",
+        "theme": "light",
+        "style": "1",
+        "locale": "id",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "hide_side_toolbar": false,
+        "allow_symbol_change": true,
+      });
+      document.getElementById('coinModal').style.display = "flex";
+    }
+
+    // Trade handler
+    async function handleTrade(side) {
+  if (!selectedCoin) return;
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    alert("Silakan login dulu");
+    return;
+  }
+  const userId = session.user.id;
+
+  let amount = parseFloat(document.getElementById('tradeAmount').value);
+  if (isNaN(amount) || amount <= 0) {
+    alert("Masukkan jumlah koin yang valid");
+    return;
+  }
+
+  let price = selectedCoin.current_price;
+  let total = price * amount;
+
+  // Ambil saldo user
+  let { data: profile } = await supabase
+    .from('users')
+    .select('saldo')
+    .eq('id', userId)
+    .single();
+
+  let saldo = profile.saldo;
+
+  if (side === "BUY") {
+    if (saldo < total) {
+      alert("Saldo tidak cukup!");
+      return;
+    }
+
+    saldo -= total;
+
+    // Cek apakah coin sudah ada di portfolio
+    const { data: existingCoin } = await supabase
+      .from('portfolio')
+      .select('amount, avg_price')
+      .eq('user_id', userId)
+      .eq('coin_symbol', selectedCoin.symbol.toUpperCase())
+      .single();
+
+    if (existingCoin) {
+      // Update jumlah dan avg_price
+      const newAmount = existingCoin.amount + amount;
+      const newAvgPrice = ((existingCoin.avg_price * existingCoin.amount) + (price * amount)) / newAmount;
+
+      await supabase.from('portfolio').update({
+        amount: newAmount,
+        avg_price: newAvgPrice
+      })
+      .eq('user_id', userId)
+      .eq('coin_symbol', selectedCoin.symbol.toUpperCase());
+    } else {
+      // Insert jika coin belum ada
+      await supabase.from('portfolio').insert({
+        user_id: userId,
+        coin_symbol: selectedCoin.symbol.toUpperCase(),
+        coin_name: selectedCoin.name,
+        amount: amount,
+        avg_price: price
+      });
+    }
+  } else if (side === "SELL") {
+    // Cek apakah coin ada di portfolio dan jumlah cukup
+    const { data: portfolio } = await supabase
+      .from('portfolio')
+      .select('amount')
+      .eq('user_id', userId)
+      .eq('coin_symbol', selectedCoin.symbol.toUpperCase())
+      .single();
+
+    if (!portfolio || portfolio.amount < amount) {
+      alert("Koin tidak cukup untuk dijual!");
+      return;
+    }
+
+    saldo += total;
+
+    const remainingAmount = portfolio.amount - amount;
+    if (remainingAmount > 0) {
+      await supabase.from('portfolio').update({
+        amount: remainingAmount
+      })
+      .eq('user_id', userId)
+      .eq('coin_symbol', selectedCoin.symbol.toUpperCase());
+    } else {
+      // Jika habis, hapus record
+      await supabase.from('portfolio')
+        .delete()
+        .eq('user_id', userId)
+        .eq('coin_symbol', selectedCoin.symbol.toUpperCase());
+    }
+  }
+
+  // Update saldo user
+  await supabase.from('users').update({ saldo }).eq('id', userId);
+
+  // Catat order
+  await supabase.from('orders').insert({
+    user_id: userId,
+    coin_symbol: selectedCoin.symbol.toUpperCase(),
+    coin_name: selectedCoin.name,
+    side,
+    price,
+    amount,
+    total
+  });
+
+  alert(`${side} ${amount} ${selectedCoin.symbol.toUpperCase()} berhasil!`);
+
+  // Reset input dan info
+  document.getElementById('tradeAmount').value = "";
+  document.getElementById('tradeInfo').textContent = "Masukkan jumlah koin";
+
+  // Refresh saldo
+  loadPortfolio();
+}
+
+    // Preview total harga saat user ketik jumlah
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'tradeAmount' && selectedCoin) {
+        let val = parseFloat(e.target.value);
+        let info = document.getElementById('tradeInfo');
+        if (!isNaN(val) && val > 0) {
+          let total = val * selectedCoin.current_price;
+          info.textContent = `Total: ${formatRupiah(total)}`;
+        } else {
+          info.textContent = "Masukkan jumlah koin";
+        }
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       loadPortfolio();
-      loadBeritaCrypto();
+      loadMarketCrypto();
     });
   </script>
 </body>

@@ -253,44 +253,56 @@
 
     // Load market crypto
     function loadMarketCrypto() {
-      fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=200&page=1&sparkline=false')
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById('market-container');
-          container.innerHTML = '';
-          data.forEach(coin => {
-            const div = document.createElement('div');
-            div.style = `
-              padding: 10px;
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              border-bottom: 1px solid #e5e7eb;
-              cursor: pointer;
-            `;
-            div.innerHTML = `
-              <img src="${coin.image}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
-              <div style="flex:1">
-                <div style="font-weight:bold; font-size:14px;">${coin.name} (${coin.symbol.toUpperCase()})</div>
-                <div style="font-size:12px; color:#6b7280;">Rank #${coin.market_cap_rank}</div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-weight:bold; color:#1f2937;">Rp ${coin.current_price.toLocaleString('id-ID')}</div>
-                <div style="font-size:12px; color:${coin.price_change_percentage_24h >= 0 ? 'green' : 'red'};">
-                  ${coin.price_change_percentage_24h.toFixed(2)}%
-                </div>
-              </div>
-            `;
-            div.addEventListener('click', () => openModal(coin));
-            container.appendChild(div);
-          });
-        })
-        .catch(err => {
-          document.getElementById('market-container').innerText = '❌ Gagal memuat market.';
-          console.error(err);
-        });
-    }
+    fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=110&page=1&sparkline=false', {
+      headers: { accept: "application/json" }
+    })
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('market-container');
+        container.innerHTML = '';
 
+        if (!Array.isArray(data)) {
+          container.innerText = '❌ Gagal memuat market (data tidak valid).';
+          console.error("Response API:", data);
+          return;
+        }
+
+        data.forEach(coin => {
+          const price = coin.current_price ?? 0;
+          const rank = coin.market_cap_rank ?? '-';
+          const change = coin.price_change_percentage_24h ?? 0;
+
+          const div = document.createElement('div');
+          div.style = `
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+          `;
+          div.innerHTML = `
+            <img src="${coin.image}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+            <div style="flex:1">
+              <div style="font-weight:bold; font-size:14px;">${coin.name} (${coin.symbol?.toUpperCase() ?? '-'})</div>
+              <div style="font-size:12px; color:#6b7280;">Rank #${rank}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-weight:bold; color:#1f2937;">Rp ${price.toLocaleString('id-ID')}</div>
+              <div style="font-size:12px; color:${change >= 0 ? 'green' : 'red'};">
+                ${change.toFixed(2)}%
+              </div>
+            </div>
+          `;
+          div.addEventListener('click', () => openModal(coin));
+          container.appendChild(div);
+        });
+      })
+      .catch(err => {
+        document.getElementById('market-container').innerText = '❌ Gagal memuat market.';
+        console.error("Fetch error:", err);
+      });
+  }
     // Open modal chart
     function openModal(coin) {
       selectedCoin = coin;

@@ -100,7 +100,11 @@ body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:v
 .modal-actions button { flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; }
 .btn-buy { background:#22c55e; color:#fff; }
 .btn-sell { background:#ef4444; color:#fff; }
-
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 /* Bottom nav */
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--card-bg); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; z-index:1000; }
 .bottom-nav a { color:var(--text-subtle); text-align:center; font-size:11px; text-decoration:none; display:flex; flex-direction:column; align-items:center; }

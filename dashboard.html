@@ -31,11 +31,29 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
     .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 16px;
-      padding-bottom: 120px;
-    }
+  max-width: 700px;
+  margin: auto;
+  padding: 16px;
+  padding-bottom: 120px;
+  height: 100vh;            /* full tinggi layar */
+  display: flex;
+  flex-direction: column;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-main);
+}
+
+#market-container {
+  flex: 1;                  /* biar isi coin memenuhi sisa ruang */
+  overflow-y: auto;         /* daftar coin bisa di-scroll */
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
     .summary-card h2 {
       font-weight: bold;
       font-size: 22px;
@@ -130,7 +148,7 @@
     }
     .chart-container {
       width: 100%;
-      height: 450px;
+      height: 430px;
     }
     .modal-actions {
       display: flex;
@@ -157,20 +175,28 @@
 </head>
 <body>
   <div class="container">
-    <div class="summary-card">
-      <h2>Saldo Utama</h2>
-      <div class="saldo-utama">
-        <span id="saldo">Rp 0</span>
-      </div>
-      <div class="wallet-actions">
-        <button onclick="window.location.href='deposit.html'">Deposit</button>
-        <button onclick="window.location.href='withdrawal.html'">Penarikan</button>
-        <button onclick="window.location.href='aiagen.html'">Ai Agent</button>
-      </div>
+    <div class="sticky-header">
+  <div class="summary-card">
+    <h2>Saldo Utama</h2>
+    <div class="saldo-utama">
+      <span id="saldo">Rp 0</span>
     </div>
-    <div id="market-container" class="summary-card">Memuat data market...</div>
+    <div class="wallet-actions">
+      <button onclick="window.location.href='deposit.html'">Deposit</button>
+      <button onclick="window.location.href='withdrawal.html'">Penarikan</button>
+      <button onclick="window.location.href='agen.html'">Ai Agent</button>
+    </div>
   </div>
 
+  <!-- 🔍 Kolom pencarian coin -->
+  <div class="summary-card" style="margin-bottom:10px;">
+    <input type="text" id="coinSearch" placeholder="Cari koin (misal: BTC, ETH, XAUT)" 
+           style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;" />
+  </div>
+</div>
+
+<!-- daftar coin scrollable -->
+<div id="market-container">Memuat data market...</div>
   <div class="bottom-nav">
     <a href="dashboard.html" class="active">
       <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 10L12 3l8 7"></path><path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"></path></svg>
@@ -190,27 +216,33 @@
     </a>
   </div>
 
-  <!-- Modal Chart -->
-  <div class="modal" id="coinModal">
-    <div class="modal-content">
-      <div class="modal-header" id="modalTitle">Chart</div>
-      <div id="tradingview_chart" class="chart-container"></div>
+<!-- Modal Chart -->
+<div class="modal" id="coinModal">
+  <div class="modal-content">
+    <div class="modal-header" id="modalTitle">Chart</div>
+    <div id="tradingview_chart" class="chart-container"></div>
 
-      <!-- Input jumlah -->
-      <div style="margin: 12px 0; text-align:center;">
-        <label for="tradeAmount" style="font-size:13px; font-weight:bold;">Jumlah (dalam koin)</label>
-        <input id="tradeAmount" type="number" step="0.0001" min="0.0001"
-               style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:6px; margin-top:6px;" />
-        <div id="tradeInfo" style="margin-top:6px; font-size:12px; color:#6b7280;">Masukkan jumlah koin</div>
-      </div>
+<!-- Info saldo -->
+<div id="balanceInfo" 
+     style="margin:12px 0; font-size:13px; padding:10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; display:flex; justify-content:space-between; font-weight:bold;">
+  <div>SALDO : <span id="userSaldo">Rp 0</span></div>
+  <div><span id="coinSymbol">-</span> : <span id="coinBalance">0</span></div>
+</div>
 
-      <div class="modal-actions">
-        <button class="btn-buy" onclick="handleTrade('BUY')">Beli</button>
-        <button class="btn-sell" onclick="handleTrade('SELL')">Jual</button>
-      </div>
+    <!-- Input jumlah -->
+    <div style="margin: 12px 0; text-align:center;">
+      <label for="tradeAmount" style="font-size:13px; font-weight:bold;">Jumlah (dalam koin)</label>
+      <input id="tradeAmount" type="number" step="0.0001" min="0.0001"
+             style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:6px; margin-top:6px;" />
+      <div id="tradeInfo" style="margin-top:6px; font-size:12px; color:#6b7280;">Masukkan jumlah koin</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-buy" onclick="handleTrade('BUY')">Beli</button>
+      <button class="btn-sell" onclick="handleTrade('SELL')">Jual</button>
     </div>
   </div>
-
+</div>
   <!-- TradingView JS -->
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <!-- Supabase JS -->
@@ -250,80 +282,138 @@
         console.error('Gagal memuat saldo:', err.message);
       }
     }
+  let allCoins = []; // simpan semua coin global
 
-    // Load market crypto
-    function loadMarketCrypto() {
-    fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=110&page=1&sparkline=false', {
-      headers: { accept: "application/json" }
-    })
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById('market-container');
-        container.innerHTML = '';
+function renderCoins(coins) {
+  const container = document.getElementById('market-container');
+  container.innerHTML = '';
 
-        if (!Array.isArray(data)) {
-          container.innerText = '❌ Gagal memuat market (data tidak valid).';
-          console.error("Response API:", data);
-          return;
-        }
-
-        data.forEach(coin => {
-          const price = coin.current_price ?? 0;
-          const rank = coin.market_cap_rank ?? '-';
-          const change = coin.price_change_percentage_24h ?? 0;
-
-          const div = document.createElement('div');
-          div.style = `
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid #e5e7eb;
-            cursor: pointer;
-          `;
-          div.innerHTML = `
-            <img src="${coin.image}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
-            <div style="flex:1">
-              <div style="font-weight:bold; font-size:14px;">${coin.name} (${coin.symbol?.toUpperCase() ?? '-'})</div>
-              <div style="font-size:12px; color:#6b7280;">Rank #${rank}</div>
-            </div>
-            <div style="text-align:right">
-              <div style="font-weight:bold; color:#1f2937;">Rp ${price.toLocaleString('id-ID')}</div>
-              <div style="font-size:12px; color:${change >= 0 ? 'green' : 'red'};">
-                ${change.toFixed(2)}%
-              </div>
-            </div>
-          `;
-          div.addEventListener('click', () => openModal(coin));
-          container.appendChild(div);
-        });
-      })
-      .catch(err => {
-        document.getElementById('market-container').innerText = '❌ Gagal memuat market.';
-        console.error("Fetch error:", err);
-      });
+  if (!coins.length) {
+    container.innerHTML = '<div style="padding:10px; text-align:center; color:#6b7280;">❌ Koin tidak ditemukan</div>';
+    return;
   }
-    // Open modal chart
-    function openModal(coin) {
-      selectedCoin = coin;
-      document.getElementById('modalTitle').textContent = `${coin.name} Chart`;
-      document.getElementById('tradingview_chart').innerHTML = "";
-      new TradingView.widget({
-        "container_id": "tradingview_chart",
-        "autosize": true,
-        "symbol": `BINANCE:${coin.symbol.toUpperCase()}USDT`,
-        "interval": "60",
-        "timezone": "Etc/UTC",
-        "theme": "light",
-        "style": "1",
-        "locale": "id",
-        "toolbar_bg": "#f1f3f6",
-        "enable_publishing": false,
-        "hide_side_toolbar": false,
-        "allow_symbol_change": true,
-      });
-      document.getElementById('coinModal').style.display = "flex";
+
+  coins.forEach(coin => {
+    const price = coin.current_price ?? 0;
+    const rank = coin.market_cap_rank ?? '-';
+    const change = coin.price_change_percentage_24h ?? 0;
+
+    const div = document.createElement('div');
+    div.style = `
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #e5e7eb;
+      cursor: pointer;
+    `;
+    div.innerHTML = `
+      <img src="${coin.image}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+      <div style="flex:1">
+        <div style="font-weight:bold; font-size:14px;">${coin.name} (${coin.symbol?.toUpperCase() ?? '-'})</div>
+        <div style="font-size:12px; color:#6b7280;">Rank #${rank}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:bold; color:#1f2937;">Rp ${price.toLocaleString('id-ID')}</div>
+        <div style="font-size:12px; color:${change >= 0 ? 'green' : 'red'};">
+          ${change.toFixed(2)}%
+        </div>
+      </div>
+    `;
+    div.addEventListener('click', () => openModal(coin));
+    container.appendChild(div);
+  });
+}
+
+function loadMarketCrypto() {
+  fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=210&page=1&sparkline=false')
+    .then(res => res.json())
+    .then(data => {
+      if (!Array.isArray(data)) {
+        document.getElementById('market-container').innerText = '❌ Gagal memuat market (data tidak valid).';
+        return;
+      }
+      allCoins = data; // simpan semua coin
+      renderCoins(allCoins);
+    })
+    .catch(err => {
+      document.getElementById('market-container').innerText = '❌ Gagal memuat market.';
+      console.error("Fetch error:", err);
+    });
+}
+
+// 🔍 Filter pencarian
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'coinSearch') {
+    const keyword = e.target.value.trim().toLowerCase();
+    if (!keyword) {
+      renderCoins(allCoins); // kosong → tampil semua
+    } else {
+      const filtered = allCoins.filter(c =>
+        c.name.toLowerCase().includes(keyword) ||
+        c.symbol.toLowerCase().includes(keyword)
+      );
+      renderCoins(filtered);
     }
+  }
+});
+
+    // Open modal chart
+// Open modal chart + tampilkan saldo user dan saldo coin
+async function openModal(coin) {
+  selectedCoin = coin;
+  document.getElementById('modalTitle').textContent = `${coin.name} Chart`;
+  document.getElementById('tradingview_chart').innerHTML = "";
+
+  // Load chart
+  new TradingView.widget({
+  "container_id": "tradingview_chart",
+  "autosize": true,
+  "symbol": "BINANCE:BTCUSDT",  // ganti dinamis sesuai coin
+  "interval": "60",
+  "timezone": "Etc/UTC",
+  "theme": "light",
+  "style": "1",
+  "locale": "id",
+  "toolbar_bg": "#f1f3f6",
+  "enable_publishing": false,
+  "allow_symbol_change": true,
+
+  // Hilangkan judul chart di atas
+  "hide_top_toolbar": false,  // biar tombol timeframe tetap ada
+  "details": false,           // sembunyikan detail pair
+  "hide_legend": true,        // sembunyikan nama pair/harga di atas
+  "withdateranges": true,     // tetap tampilkan pilihan timeframe
+});
+
+  // Ambil saldo user & saldo coin
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const userId = session.user.id;
+
+    // Ambil saldo IDR user
+    let { data: profile } = await supabase
+      .from('users')
+      .select('saldo')
+      .eq('id', userId)
+      .single();
+
+    document.getElementById('userSaldo').textContent = formatRupiah(profile.saldo);
+
+    // Ambil saldo coin user
+    const { data: portfolio } = await supabase
+      .from('portfolio')
+      .select('amount')
+      .eq('user_id', userId)
+      .eq('coin_symbol', coin.symbol.toUpperCase())
+      .single();
+
+    document.getElementById('coinSymbol').textContent = coin.symbol.toUpperCase();
+    document.getElementById('coinBalance').textContent = portfolio ? portfolio.amount : 0;
+  }
+
+  document.getElementById('coinModal').style.display = "flex";
+}
 // Close modal ketika klik di luar modal-content
 document.getElementById('coinModal').addEventListener('click', (e) => {
   if (e.target.classList.contains('modal')) {
@@ -333,7 +423,6 @@ document.getElementById('coinModal').addEventListener('click', (e) => {
     document.getElementById('tradeInfo').textContent = "Masukkan jumlah koin";
   }
 });
-    // Trade handler
     // Trade handler
 async function handleTrade(side) {
   if (!selectedCoin) return;

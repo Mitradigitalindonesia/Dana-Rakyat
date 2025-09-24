@@ -17,183 +17,365 @@
   --loss: #ef4444;
   --border: #e5e7eb;
 }
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin:0; padding:0; }
+body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg-main); color:var(--text-main); margin:0; }
 .container { max-width:700px; margin:auto; padding:16px; padding-bottom:120px; }
+
+/* Summary */
 .portfolio-summary {
-  background: linear-gradient(135deg, #0ea5e9, #0284c7); /* gradasi biru */
-  color: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  background: linear-gradient(135deg,#0ea5e9,#0284c7);
+  color:#fff; border-radius:16px; padding:20px; margin-bottom:16px; text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
-.portfolio-summary .summary-title {
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-.portfolio-summary .summary-value {
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-.portfolio-summary .summary-pl {
-  font-size: 14px;
-  color: #d1fae5; /* hijau pastel untuk profit */
-  font-weight: 500;
-}
+.summary-title { font-size:14px; margin-bottom:6px; }
+.summary-value { font-size:20px; font-weight:bold; }
+.summary-pl { font-size:12px; font-weight:500; margin-top:4px; }
+
+/* Coin list */
 .coin-list { display:flex; flex-direction:column; gap:10px; }
-.coin-card { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-radius:12px; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.05); transition: background 0.3s; }
-.coin-left { display:flex; gap:12px; align-items:center; min-width:0; }
-.coin-left img { width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; }
-.coin-text { display:flex; flex-direction:column; overflow:hidden; }
-.coin-text .name { font-weight:bold; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.coin-text .desc { font-size:12px; color:#6b7280; margin-top:2px; }
-.coin-right { display:flex; flex-direction:column; align-items:flex-end; gap:2px; min-width:70px; }
+.coin-card {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 16px; border-radius:12px; background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05); cursor:pointer;
+}
+.coin-left { display:flex; gap:9px; align-items:center; }
+.coin-left img { width:30px; height:30px; border-radius:30%; }
+.coin-text .name { font-weight:bold; font-size:12px; }
+.coin-text .desc { font-size:10px; color:var(--text-subtle); }
+.coin-right { text-align:right; }
 .coin-right .amount { font-weight:bold; font-size:14px; }
-.coin-right .idr { font-size:12px; color:#6b7280; }
-.coin-right .pl { font-size:12px; font-weight:bold; }
-.coin-card.profit-bg { background-color: rgba(34,197,94,0.1); }
-.coin-card.loss-bg { background-color: rgba(239,68,68,0.1); }
-.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--card-bg); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; box-shadow:0 -1px 4px rgba(0,0,0,0.05); z-index:1000; }
-.bottom-nav a { color:var(--text-subtle); text-align:center; font-size:11px; text-decoration:none; display:flex; flex-direction:column; align-items:center; transition:color 0.2s; }
-.bottom-nav a svg { width:24px; height:24px; margin-bottom:4px; fill:currentColor; }
+.coin-right .idr { font-size:10px; color:var(--text-subtle); }
+.coin-right .pl { font-size:10px; font-weight:bold; }
+.coin-card.profit-bg { background: rgba(34,197,94,0.1); }
+.coin-card.loss-bg { background: rgba(239,68,68,0.1); }
+
+/* Allocation chart */
+/* Allocation donut chart di halaman utama */
+.allocation-wrapper {
+  display: flex;
+  gap: 16px;
+  align-items: center; /* center vertikal chart dan list */
+  justify-content: flex-start;
+}
+
+.allocation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.allocation-wrapper .chart-container {
+  width: 200px !important;
+  height: 200px !important;
+  flex-shrink: 0;
+}
+.allocation-list .asset {
+  display: flex;
+  justify-content: space-between; /* nama di kiri, persen di kanan */
+  align-items: center; /* vertical align center */
+  font-size: 11px;
+}
+
+.allocation-list .asset .name {
+  flex: 1; /* ambil sisa ruang */
+  text-align: left;
+}
+
+.allocation-list .asset .percent {
+  flex-shrink: 0; /* jangan mengecil */
+  width: 50px; /* lebar tetap agar sejajar vertikal */
+  text-align: right;
+}
+/* Modal */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center; }
+.modal-content { background:var(--card-bg); border-radius:12px; padding:16px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto; }
+.modal-content.full { width:100%; height:100%; max-width:none; max-height:none; border-radius:0; display:flex; flex-direction:column; position:relative; overflow-y:auto; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--card-bg); position:sticky; top:0; z-index:5; }
+.modal-header span { font-size:16px; font-weight:bold; color:var(--text-main); }
+.modal-close { background:none; border:none; font-size:24px; font-weight:bold; color:var(--text-subtle); cursor:pointer; }
+.modal-close:hover { color:var(--loss); }
+
+.chart-container { width:100%; height:470px; }
+.balance-info { margin:12px 0; padding:10px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; display:flex; justify-content:space-between; font-size:13px; font-weight:bold; }
+.modal-actions { display:flex; gap:10px; margin-top:12px; }
+.modal-actions button { flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; }
+.btn-buy { background:#22c55e; color:#fff; }
+.btn-sell { background:#ef4444; color:#fff; }
+
+/* Bottom nav */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--card-bg); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; z-index:1000; }
+.bottom-nav a { color:var(--text-subtle); text-align:center; font-size:11px; text-decoration:none; display:flex; flex-direction:column; align-items:center; }
 .bottom-nav a.active, .bottom-nav a:hover { color:var(--highlight); }
+.bottom-nav a svg { width:24px; height:24px; margin-bottom:4px; }
 </style>
 </head>
 <body>
 <div class="container">
-<div class="summary-card portfolio-summary">
-  <div class="summary-text">
+  <!-- Summary -->
+  <div class="portfolio-summary">
     <div class="summary-title">Total Nilai Portofolio</div>
     <div class="summary-value" id="totalPortfolio">Rp 0</div>
     <div class="summary-pl" id="totalPL">Rp 0</div>
   </div>
-</div>
 
+  <!-- Allocation Chart -->
   <div class="summary-card">
-    <h2>Alokasi Dana</h2>
-    <canvas id="allocationChart" class="chart-container"></canvas>
+    <div class="allocation-wrapper">
+      <canvas id="allocationChart" class="chart-container"></canvas>
+      <div id="allocationList" class="allocation-list"></div>
+    </div>
   </div>
 
+  <!-- Coin List -->
+  <!-- Coin List -->
   <div class="summary-card">
-    <h2>Daftar Coin</h2>
+    <h2></h2>
     <div id="coinList" class="coin-list">Memuat koin...</div>
   </div>
 </div>
 
+<!-- Modal Trade -->
+<div class="modal" id="coinModal">
+  <div class="modal-content full">
+    <div class="modal-header">
+      <span id="modalTitle">Trading</span>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+
+    <div id="tradingview_chart" class="chart-container"></div>
+
+    <div class="balance-info">
+      <div>SALDO : <span id="userSaldo">Rp 0</span></div>
+      <div><span id="coinSymbol">-</span> : <span id="coinBalance">0</span></div>
+    </div>
+
+    <div>
+      <label for="tradeAmount" style="font-size:13px;font-weight:bold;">Jumlah (koin)</label>
+      <input id="tradeAmount" type="number" step="0.0001" min="0.0001"
+        style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:6px;margin-top:6px;" />
+      <div id="tradeInfo" style="margin-top:6px;font-size:12px;color:var(--text-subtle);">
+        Masukkan jumlah koin
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-buy" id="btnBuy">Beli</button>
+      <button class="btn-sell" id="btnSell">Jual</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
 <div class="bottom-nav">
-  <a href="dashboard.html" class="active"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 10L12 3l8 7"></path><path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"></path></svg><span>Home</span></a>
+  <a href="dashboard.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 10L12 3l8 7"></path><path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"></path></svg><span>Home</span></a>
   <a href="akun.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg><span>Akun</span></a>
-  <a href="dompet.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M2 7a2 2 0 012-2h16a1 1 0 011 1v2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a1 1 0 001-1v-2h-6a2 2 0-2-2v-2a2 2 0-2-2h6V6a3 3 0-3-3H4a3 3 0-2 2.83V7z"></path><circle cx="18" cy="12" r="1"></circle></svg><span>Dompet</span></a>
+  <a href="dompet.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M2 7a2 2 0 012-2h16a1 1 0 011 1v2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a2 2 0 001-1v-2h-6a2 2 0-2-2v-2a2 2 0-2-2h6V6a3 3 0-3-3H4a3 3 0-2 2.83V7z"></path><circle cx="18" cy="12" r="1"></circle></svg><span>Dompet</span></a>
   <a href="mitra.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 12l4-4 4 4-4 4-4-4z"></path><path d="M20 12l-4-4-4 4 4 4 4-4z"></path></svg><span>Mitra</span></a>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
   const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
 
-  function formatRupiah(num){
-    return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(num||0);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let selectedCoin = null;
+  const formatRupiah = (num) => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(num||0);
+
+  const colors = ["#0ea5e9","#f59e0b","#22c55e","#ef4444","#8b5cf6","#f43f5e","#10b981","#3b82f6","#facc15","#eab308"];
+
+  async function fetchTopCoins(){
+    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=210&page=1');
+    return res.json();
   }
 
-  async function fetchTopCoins() {
-    const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=idr&order=market_cap_desc&per_page=200&page=1');
-    const data = await res.json();
-    return data;
-  }
-
-  async function loadPortfolio() {
-    const { data:{ session } } = await supabase.auth.getSession();
+  async function loadPortfolio(){
+    const { data:{session} } = await supabase.auth.getSession();
     if(!session){ window.location.href='login.html'; return; }
     const userId = session.user.id;
     const { data: portfolio } = await supabase.from('portfolio').select('*').eq('user_id', userId);
     const topCoins = await fetchTopCoins();
 
-    let totalCost = 0, totalCurrent = 0;
-    const list = document.getElementById('coinList');
-    list.innerHTML = '';
-    const labels = [], values = [];
+    let totalCost=0,totalCurrent=0;
+    const list=document.getElementById('coinList');
+    list.innerHTML='';
+    const labels=[],values=[];
 
-    if(!portfolio || portfolio.length===0){
-      topCoins.forEach(c=>{
-        labels.push(c.symbol.toUpperCase());
-        values.push(c.current_price);
-        const div = document.createElement('div');
-        div.className = 'coin-card';
-        div.innerHTML = `
-          <div class="coin-left">
-            <img src="${c.image}" />
-            <div class="coin-text">
-              <div class="name">${c.symbol.toUpperCase()}</div>
-              <div class="desc">${c.name} <br>Unrealized P&L</div>
-            </div>
+    portfolio.forEach((c, index) => {
+      const rawSymbol = c.coin_symbol || "";
+      const symbol = rawSymbol ? rawSymbol.toUpperCase() : "-";
+      const name = c.coin_name || "Unknown";
+
+      const coinInfo = topCoins.find(tc =>
+        rawSymbol && tc.symbol.toLowerCase() === rawSymbol.toLowerCase()
+      );
+
+      const price = coinInfo ? coinInfo.current_price : (c.avg_price || 0);
+      const img = coinInfo ? coinInfo.image : 'https://via.placeholder.com/40';
+      totalCost += (c.amount || 0) * (c.avg_price || 0);
+      totalCurrent += (c.amount || 0) * price;
+
+      labels.push(name); // gunakan nama lengkap
+      values.push((c.amount || 0) * price);
+
+      const pl = (c.amount || 0) * (price - (c.avg_price || 0));
+
+      const div = document.createElement('div');
+      div.className = 'coin-card ' + (pl >= 0 ? 'profit-bg' : 'loss-bg');
+      div.innerHTML = `
+        <div class="coin-left">
+          <img src="${img}" />
+          <div class="coin-text">
+            <div class="name">${symbol}</div>
+            <div class="desc">${name}<br>P&L</div>
           </div>
-          <div class="coin-right">
-            <div class="amount">0</div>
-            <div class="idr">${formatRupiah(0)}</div>
-            <div class="pl" style="color:var(--text-subtle)">-</div>
+        </div>
+        <div class="coin-right">
+          <div class="amount">${c.amount || 0}</div>
+          <div class="idr">${formatRupiah((c.amount || 0) * price)}</div>
+          <div class="pl" style="color:${pl >= 0 ? 'var(--profit)' : 'var(--loss)'}">
+            ${pl >= 0 ? '+' : ''}${formatRupiah(pl)}
           </div>
-        `;
-        list.appendChild(div);
+        </div>`;
+      
+      div.onclick = () => openModal({
+        ...c,
+        coin_symbol: symbol,
+        coin_name: name,
+        current_price: price
       });
-      document.getElementById('totalPortfolio').textContent=formatRupiah(0);
-      document.getElementById('totalPL').textContent=formatRupiah(0);
-    } else {
-      portfolio.forEach(c=>{
-        const coinInfo = topCoins.find(tc=>tc.symbol.toLowerCase()===c.coin_symbol.toLowerCase());
-        const currentPrice = coinInfo ? coinInfo.current_price : c.avg_price;
-        const img = coinInfo ? coinInfo.image : 'https://via.placeholder.com/40';
+      list.appendChild(div);
+    });
 
-        totalCost += c.amount*c.avg_price;
-        totalCurrent += c.amount*currentPrice;
+    document.getElementById('totalPortfolio').textContent=formatRupiah(totalCurrent);
+    const plTotal=totalCurrent-totalCost;
+    const plElem=document.getElementById('totalPL');
+    plElem.textContent=formatRupiah(plTotal);
+    plElem.style.color=plTotal>=0?'var(--profit)':'var(--loss)';
 
-        labels.push(c.coin_symbol.toUpperCase());
-        values.push(c.amount*currentPrice);
-
-        const plValue = c.amount*(currentPrice - c.avg_price);
-        const div=document.createElement('div');
-        div.className='coin-card ' + (plValue>=0?'profit-bg':'loss-bg');
-        div.innerHTML=`
-          <div class="coin-left">
-            <img src="${img}" />
-            <div class="coin-text">
-              <div class="name">${c.coin_symbol.toUpperCase()}</div>
-              <div class="desc">${c.coin_name} <br>Unrealized P&L</div>
-            </div>
-          </div>
-          <div class="coin-right">
-            <div class="amount">${c.amount}</div>
-            <div class="idr">${formatRupiah(c.amount*currentPrice)}</div>
-            <div class="pl" style="color:${plValue>=0?'var(--profit)':'var(--loss)'}">${plValue>=0?'+':''}${formatRupiah(plValue)}</div>
-          </div>
-        `;
-        list.appendChild(div);
-      });
-
-      // Update summary
-      document.getElementById('totalPortfolio').textContent=formatRupiah(totalCurrent);
-      const pl = totalCurrent - totalCost;
-      const plElem = document.getElementById('totalPL');
-      plElem.textContent=formatRupiah(pl);
-      plElem.style.color=(pl>=0)?'var(--profit)':'var(--loss)';
-    }
-
-    // Update chart
     new Chart(document.getElementById('allocationChart'), {
       type:'doughnut',
-      data:{labels, datasets:[{data:values, backgroundColor:labels.map((_,i)=>`hsl(${i*60},70%,60%)`)}]},
-      options:{responsive:true, plugins:{legend:{position:'bottom'}}}
+      data:{ labels, datasets:[{ data: values, backgroundColor: labels.map((_,i)=>colors[i % colors.length]) }] },
+      options:{ responsive:true, plugins:{ legend:{ display:false } } }
+    });
+
+    // custom legend
+    const allocationList = document.getElementById("allocationList");
+    allocationList.innerHTML = "";
+    const totalValue = values.reduce((a,b)=>a+b,0);
+    labels.forEach((label,i)=>{
+      const percent = ((values[i]/totalValue)*100).toFixed(1);
+      const color = colors[i % colors.length];
+      const div = document.createElement("div");
+      div.className="asset";
+      div.innerHTML = `<span class="name" style="color:${color}">${label}</span>
+                       <span class="percent" style="color:${color}">${percent}%</span>`;
+      allocationList.appendChild(div);
     });
   }
 
-  await loadPortfolio();
-  setInterval(loadPortfolio, 30000);
+  async function openModal(coin){
+    selectedCoin=coin;
+    document.getElementById('tradingview_chart').innerHTML="";
+    const symbol = coin.coin_symbol ? coin.coin_symbol.toUpperCase() : "-";
+    new TradingView.widget({
+      container_id:"tradingview_chart",
+      autosize:true,
+      symbol:`BINANCE:${symbol}USDT`,
+      interval:"60", timezone:"Etc/UTC", theme:"light", style:"1", locale:"id",
+      details:false, hide_legend:true, withdateranges:true
+    });
+
+    const { data:{session} } = await supabase.auth.getSession();
+    if(session){
+      const userId=session.user.id;
+      const { data: profile } = await supabase.from('users').select('saldo').eq('id',userId).single();
+      document.getElementById('userSaldo').textContent=formatRupiah(profile?.saldo||0);
+      const { data: p } = await supabase.from('portfolio').select('amount').eq('user_id',userId).eq('coin_symbol',symbol).single();
+      document.getElementById('coinSymbol').textContent=symbol;
+      document.getElementById('coinBalance').textContent=p?p.amount:0;
+    }
+    document.getElementById('coinModal').style.display="flex";
+  }
+
+  async function handleTrade(side){
+    if(!selectedCoin) return;
+    const { data:{session} } = await supabase.auth.getSession();
+    if(!session){ alert("Silakan login"); return; }
+    const userId=session.user.id;
+    let amount=parseFloat(document.getElementById('tradeAmount').value);
+    if(isNaN(amount)||amount<=0){ alert("Jumlah tidak valid"); return; }
+    const symbol=selectedCoin.coin_symbol.toUpperCase();
+    const price=selectedCoin.current_price; let total=price*amount; let fee=total*0.01;
+    let { data: profile }=await supabase.from('users').select('saldo').eq('id',userId).single(); let saldo=profile.saldo;
+
+    if(side==="BUY"){
+      if(saldo<total+fee){ alert("Saldo kurang"); return; }
+      saldo-=total+fee;
+      const { data: ex } = await supabase.from('portfolio').select('amount,avg_price').eq('user_id',userId).eq('coin_symbol',symbol).single();
+      if(ex){
+        const newAmount = ex.amount + amount;
+        const newAvg = ((ex.avg_price * ex.amount) + (price * amount)) / newAmount;
+        await supabase.from('portfolio').update({amount:newAmount, avg_price:newAvg}).eq('user_id',userId).eq('coin_symbol',symbol);
+      } else {
+        await supabase.from('portfolio').insert({user_id:userId, coin_symbol:symbol, coin_name:selectedCoin.coin_name, amount, avg_price:price});
+      }
+    } else { // SELL
+      const { data: ex } = await supabase.from('portfolio').select('amount').eq('user_id',userId).eq('coin_symbol',symbol).single();
+      if(!ex || ex.amount < amount){ alert("Koin tidak cukup"); return; }
+      saldo += total - fee;
+      const remain = ex.amount - amount;
+      if(remain > 0){
+        await supabase.from('portfolio').update({amount:remain}).eq('user_id',userId).eq('coin_symbol',symbol);
+      } else {
+        await supabase.from('portfolio').delete().eq('user_id',userId).eq('coin_symbol',symbol);
+      }
+    }
+
+    await supabase.from('users').update({saldo}).eq('id',userId);
+    await supabase.from('orders').insert({user_id:userId, coin_symbol:symbol, coin_name:selectedCoin.coin_name, side, price, amount, total, fee});
+    alert(`${side} ${amount} ${symbol} sukses! Fee: ${formatRupiah(fee)}`);
+
+    document.getElementById('tradeAmount').value="";
+    document.getElementById('tradeInfo').textContent="Masukkan jumlah koin";
+    document.getElementById('coinModal').style.display = "none";
+    loadPortfolio();
+  }
+
+  // tombol trade
+  document.getElementById('btnBuy').addEventListener('click', () => handleTrade("BUY"));
+  document.getElementById('btnSell').addEventListener('click', () => handleTrade("SELL"));
+
+  // input jumlah koin → update estimasi harga
+  document.getElementById('tradeAmount').addEventListener('input', () => {
+    let v = parseFloat(document.getElementById('tradeAmount').value);
+    if(!selectedCoin || isNaN(v) || v <= 0){
+      document.getElementById('tradeInfo').textContent="Masukkan jumlah koin";
+      return;
+    }
+    let total = v * selectedCoin.current_price;
+    let fee = total * 0.01;
+    document.getElementById('tradeInfo').textContent = `Estimasi: ${formatRupiah(total)} | Fee: ${formatRupiah(fee)}`;
+  });
+
+  // tombol close modal
+  document.getElementById('modalClose').addEventListener('click', () => {
+    document.getElementById('coinModal').style.display = "none";
+  });
+
+  // klik di luar modal → tutup
+  document.getElementById('coinModal').addEventListener('click', (e) => {
+    if(e.target.id === "coinModal"){
+      document.getElementById('coinModal').style.display = "none";
+    }
+  });
+
+  // load awal
+  loadPortfolio();
 });
 </script>
 </body>

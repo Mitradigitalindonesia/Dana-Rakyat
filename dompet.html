@@ -85,6 +85,15 @@ body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:v
   width: 50px; /* lebar tetap agar sejajar vertikal */
   text-align: right;
 }
+.coin-list-wrapper {
+  max-height: 250px;       /* tinggi maksimal container scroll */
+  overflow-y: auto;        /* scroll vertikal */
+  border-radius: 12px;     /* sesuaikan dengan container lain */
+  background: #fff;        /* agar terlihat seperti card */
+  padding: 1px;            /* beri jarak antara list dan container */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* optional, agar mirip coin-card */
+}
+
 /* Modal */
 .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center; }
 .modal-content { background:var(--card-bg); border-radius:12px; padding:16px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto; }
@@ -100,11 +109,7 @@ body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:v
 .modal-actions button { flex:1; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer; }
 .btn-buy { background:#22c55e; color:#fff; }
 .btn-sell { background:#ef4444; color:#fff; }
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+
 /* Bottom nav */
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--card-bg); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; z-index:1000; }
 .bottom-nav a { color:var(--text-subtle); text-align:center; font-size:11px; text-decoration:none; display:flex; flex-direction:column; align-items:center; }
@@ -129,10 +134,10 @@ body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:v
     </div>
   </div>
 
-  <!-- Coin List -->
-  <!-- Coin List -->
-  <div class="summary-card">
-    <h2></h2>
+<!-- Coin List -->
+<div class="summary-card">
+  <h2></h2>
+  <div class="coin-list-wrapper" style="max-height:400px; overflow-y:auto;">
     <div id="coinList" class="coin-list">Memuat koin...</div>
   </div>
 </div>

@@ -18,7 +18,7 @@
   --border: #e5e7eb;
 }
 body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg-main); color:var(--text-main); margin:0; }
-.container { max-width:700px; margin:auto; padding:16px; padding-bottom:120px; }
+.container { max-width:470px; margin:auto; padding:16px; padding-bottom:2px; }
 
 /* Summary */
 .portfolio-summary {
@@ -29,6 +29,12 @@ body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:v
 .summary-title { font-size:14px; margin-bottom:6px; }
 .summary-value { font-size:20px; font-weight:bold; }
 .summary-pl { font-size:12px; font-weight:500; margin-top:4px; }
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-main);
+}
 
 /* Coin list */
 .coin-list { display:flex; flex-direction:column; gap:10px; }
@@ -115,11 +121,15 @@ body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:v
 .bottom-nav a { color:var(--text-subtle); text-align:center; font-size:11px; text-decoration:none; display:flex; flex-direction:column; align-items:center; }
 .bottom-nav a.active, .bottom-nav a:hover { color:var(--highlight); }
 .bottom-nav a svg { width:24px; height:24px; margin-bottom:4px; }
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 </style>
 </head>
 <body>
 <div class="container">
-  <!-- Summary -->
+    <div class="sticky-header">
   <div class="portfolio-summary">
     <div class="summary-title">Total Nilai Portofolio</div>
     <div class="summary-value" id="totalPortfolio">Rp 0</div>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Investasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg-main: #f9fafb;
+  --card-bg: #ffffff;
+  --text-main: #1f2937;
+  --text-subtle: #6b7280;
+  --primary: #0ea5e9;
+  --highlight: #0ea5e9;
+  --profit: #22c55e;
+  --loss: #ef4444;
+  --border: #e5e7eb;
+}
+body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg-main); color:var(--text-main); margin:0; }
+.container { max-width:470px; margin:auto; padding:16px; padding-bottom:70px; }
+
+/* Summary */
+.portfolio-summary {
+  background: linear-gradient(135deg,#0ea5e9,#0284c7);
+  color:#fff; border-radius:16px; padding:20px; margin-bottom:16px; text-align:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+.summary-title { font-size:14px; margin-bottom:6px; }
+.summary-value { font-size:20px; font-weight:bold; }
+.summary-sub { font-size:12px; font-weight:500; margin-top:4px; }
+
+/* Card list */
+.asset-list { display:flex; flex-direction:column; gap:10px; }
+.asset-card {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 16px; border-radius:12px; background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  cursor:pointer;
+}
+.asset-left { display:flex; flex-direction:column; }
+.asset-left .name { font-weight:bold; font-size:13px; }
+.asset-left .desc { font-size:11px; color:var(--text-subtle); }
+.asset-right { text-align:right; font-size:12px; }
+.asset-right .aum { font-weight:bold; font-size:13px; }
+.asset-right .return { font-weight:bold; }
+
+/* Allocation chart */
+.allocation-wrapper { display:flex; gap:16px; align-items:center; margin-bottom:16px; }
+.chart-container { width:180px !important; height:180px !important; flex-shrink:0; }
+.allocation-list { display:flex; flex-direction:column; gap:6px; font-size:11px; }
+.allocation-list .asset { display:flex; justify-content:space-between; align-items:center; }
+
+/* Modal */
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+.modal-content { background:#fff; padding:20px; border-radius:12px; width:90%; max-width:400px; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.modal-close { background:none; border:none; font-size:20px; cursor:pointer; }
+.balance-info { display:flex; justify-content:space-between; font-size:13px; margin:10px 0; color:var(--text-main); }
+.modal-actions { display:flex; gap:10px; margin-top:15px; }
+.btn-buy { flex:1; background:var(--profit); color:#fff; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; }
+.btn-sell { flex:1; background:var(--loss); color:#fff; padding:10px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; }
+/* Bottom nav */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--card-bg); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:10px 0; z-index:1200; }
+.bottom-nav a { color:var(--text-subtle); text-align:center; font-size:11px; text-decoration:none; display:flex; flex-direction:column; align-items:center; }
+.bottom-nav a.active, .bottom-nav a:hover { color:var(--highlight); }
+.bottom-nav a svg { width:24px; height:24px; margin-bottom:4px; }
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Summary -->
+  <div class="portfolio-summary">
+    <div class="summary-title">Total Nilai Portofolio</div>
+    <div class="summary-value" id="totalAum">Rp 0</div>
+    <div class="summary-sub">Rata-rata Return: <span id="avgReturn">0%</span></div>
+  </div>
+
+  <!-- Allocation -->
+  <div class="allocation-wrapper">
+    <canvas id="allocationChart" class="chart-container"></canvas>
+    <div id="allocationList" class="allocation-list"></div>
+  </div>
+
+  <!-- List produk -->
+  <div id="assetList" class="asset-list">Memuat data...</div>
+</div>
+
+<!-- Modal Trade -->
+<div class="modal" id="investModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span id="modalTitle">Investasi</span>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+
+    <div id="modalInfo" style="font-size:13px; margin:10px 0; color:var(--text-subtle);"></div>
+
+    <div class="balance-info">
+      <div>SALDO : <span id="userSaldo">Rp 0</span></div>
+      <div>Unit Anda : <span id="userUnit">0</span></div>
+    </div>
+
+    <div>
+      <label for="tradeUnit" style="font-size:13px;font-weight:bold;">Jumlah Unit</label>
+      <input id="tradeUnit" type="number" step="0.0001" min="0.0001"
+        style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:6px;margin-top:6px;" />
+      <div id="tradeInfo" style="margin-top:6px;font-size:12px;color:var(--text-subtle);">
+        Masukkan jumlah unit
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-buy" id="btnBuy">Beli</button>
+      <button class="btn-sell" id="btnSell">Jual</button>
+    </div>
+  </div>
+</div>
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <a href="dashboard.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 10L12 3l8 7"></path><path d="M5 11v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"></path></svg><span>Home</span></a>
+  <a href="akun.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 4-6 8-6s8 2 8 6"></path></svg><span>Akun</span></a>
+  <a href="dompet.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M2 7a2 2 0 012-2h16a1 1 0 011 1v2H4a2 2 0 00-2 2v8a2 2 0 002 2h16a2 2 0 001-1v-2h-6a2 2 0-2-2v-2a2 2 0-2-2h6V6a3 3 0-3-3H4a3 3 0-2 2.83V7z"></path><circle cx="18" cy="12" r="1"></circle></svg><span>Dompet</span></a>
+  <a href="mitra.html"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M4 12l4-4 4 4-4 4-4-4z"></path><path d="M20 12l-4-4-4 4 4 4 4-4z"></path></svg><span>Mitra</span></a>
+</div>
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const SUPABASE_URL = "https://kibcrltcznvkbssgrinw.supabase.co";
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // sementara kita set user dummy (nanti bisa diganti session supabase.auth)
+  let { data: { user }, error: authError } = await supabase.auth.getUser();
+if (authError || !user) {
+  alert("Silakan login dulu.");
+  return;
+}
+let currentUser = user;
+  const formatRupiah = (num) => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR'}).format(num||0);
+  const colors = ["#0ea5e9","#f59e0b","#22c55e","#ef4444","#8b5cf6"];
+
+  // ---------- LOAD PORTFOLIO ----------
+  let allocationChart = null;
+
+async function loadPortfolio(){
+  const { data: { user }, error: authErr } = await supabase.auth.getUser();
+  if (authErr || !user) {
+    alert("User belum login");
+    return;
+  }
+
+  let { data, error } = await supabase
+    .from('produk_investasi')
+    .select(`
+      id,
+      nama_produk,
+      nab,
+      return,
+      produk_investasi_user!left (
+        jumlah_unit,
+        avg_nab
+      )
+    `)
+    .eq('produk_investasi_user.user_id', user.id);
+
+  if(error){ console.error(error); return; }
+
+  let totalAum = 0;
+  let totalReturn = 0;
+  const labels=[], values=[];
+  const list=document.getElementById('assetList');
+  list.innerHTML='';
+
+  data.forEach((row)=>{
+    const jumlah_unit = row.produk_investasi_user?.[0]?.jumlah_unit || 0;
+    const avg_nab = row.produk_investasi_user?.[0]?.avg_nab || 0;
+    const aum = jumlah_unit * row.nab;
+    const ret = avg_nab > 0 ? (((row.nab - avg_nab) / avg_nab) * 100).toFixed(2) : 0;
+
+    // total & chart hanya kalau user punya unit
+    if(jumlah_unit > 0){
+      totalAum += aum;
+      totalReturn += parseFloat(ret);
+      labels.push(row.nama_produk);
+      values.push(aum);
+    }
+
+    // render ke list (selalu tampil semua produk)
+    const div=document.createElement("div");
+    div.className="asset-card";
+    div.innerHTML=`
+      <div class="asset-left">
+        <div class="name">${row.nama_produk}</div>
+        <div class="desc">
+          NAB: ${formatRupiah(row.nab)} | Unit: ${jumlah_unit}
+        </div>
+      </div>
+      <div class="asset-right">
+        <div class="aum">${formatRupiah(aum)}</div>
+        <div class="return" style="color:${ret>=0?'var(--profit)':'var(--loss)'}">
+          ${ret>=0?'+':''}${ret}%
+        </div>
+      </div>
+    `;
+    div.addEventListener('click',()=>openModal({...row, jumlah_unit, avg_nab}));
+    list.appendChild(div);
+  });
+
+  // update summary
+  document.getElementById('totalAum').textContent = formatRupiah(totalAum);
+  document.getElementById('avgReturn').textContent = (labels.length ? (totalReturn/labels.length).toFixed(2) : 0) + '%';
+
+  // update chart
+  if (allocationChart) allocationChart.destroy();
+  const ctx = document.getElementById('allocationChart');
+  allocationChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:values, backgroundColor:labels.map((_,i)=>colors[i%colors.length]) }] },
+    options:{ responsive:true, plugins:{ legend:{ display:false } } }
+  });
+
+  // custom legend
+  const allocationList=document.getElementById("allocationList");
+  allocationList.innerHTML="";
+  const totalValue=values.reduce((a,b)=>a+b,0);
+  labels.forEach((label,i)=>{
+    const percent=totalValue>0?((values[i]/totalValue)*100).toFixed(1):0;
+    const color=colors[i%colors.length];
+    const div=document.createElement("div");
+    div.className="asset";
+    div.innerHTML=`<span style="color:${color}">${label}</span>
+                   <span style="color:${color}">${percent}%</span>`;
+    allocationList.appendChild(div);
+  });
+}
+
+  // ---------- MODAL ----------
+  let selectedProduk=null;
+
+  async function openModal(produk){
+    selectedProduk=produk;
+    document.getElementById('modalTitle').textContent=produk.nama_produk;
+    document.getElementById('modalInfo').textContent=`NAB: ${formatRupiah(produk.nab)} | Return: ${produk.return}%`;
+
+    // get saldo user
+    let { data:user, error:userErr } = await supabase.from('users').select('saldo').eq('id', currentUser.id).single();
+    if(userErr){ console.error(userErr); return; }
+    document.getElementById('userSaldo').textContent=formatRupiah(user?.saldo||0);
+
+    // get unit user
+    let { data:pu, error:puErr } = await supabase.from('produk_investasi_user')
+      .select('jumlah_unit')
+      .eq('user_id',currentUser.id)
+      .eq('produk_id',produk.id)
+      .single();
+    if(puErr && puErr.details!=="The result contains 0 rows"){ console.error(puErr); }
+    document.getElementById('userUnit').textContent=pu?.jumlah_unit||0;
+
+    document.getElementById('investModal').style.display="flex";
+  }
+
+  async function handleTrade(side){
+    if(!selectedProduk) return;
+    let unit=parseFloat(document.getElementById('tradeUnit').value);
+    if(isNaN(unit)||unit<=0){ alert("Jumlah unit tidak valid"); return; }
+
+    let total=unit*selectedProduk.nab;
+
+    // get user saldo
+    let { data:user, error:userErr } = await supabase.from('users').select('saldo').eq('id',currentUser.id).single();
+    if(userErr){ console.error(userErr); return; }
+    let saldo=user?.saldo||0;
+
+    if(side==="BUY"){
+      if(saldo<total){ alert("Saldo tidak cukup"); return; }
+      saldo-=total;
+
+      let { data:ex }=await supabase.from('produk_investasi_user')
+        .select('*').eq('user_id',currentUser.id).eq('produk_id',selectedProduk.id).single();
+
+      if(ex){
+        const newUnit=ex.jumlah_unit+unit;
+        const newAvg=((ex.avg_nab*ex.jumlah_unit)+(selectedProduk.nab*unit))/newUnit;
+        let { error: updErr } = await supabase.from('produk_investasi_user')
+          .update({jumlah_unit:newUnit, avg_nab:newAvg})
+          .eq('id',ex.id);
+        if(updErr){ console.error(updErr); return; }
+      }else{
+        let { error: insErr } = await supabase.from('produk_investasi_user').insert({
+          user_id:currentUser.id, produk_id:selectedProduk.id,
+          jumlah_unit:unit, avg_nab:selectedProduk.nab
+        });
+        if(insErr){ console.error(insErr); return; }
+      }
+    }else{ // SELL
+      let { data:ex }=await supabase.from('produk_investasi_user')
+        .select('*').eq('user_id',currentUser.id).eq('produk_id',selectedProduk.id).single();
+
+      if(!ex||ex.jumlah_unit<unit){ alert("Unit tidak cukup"); return; }
+      saldo+=total;
+
+      const remain=ex.jumlah_unit-unit;
+      if(remain>0){
+        let { error: updErr } = await supabase.from('produk_investasi_user')
+          .update({jumlah_unit:remain}).eq('id',ex.id);
+        if(updErr){ console.error(updErr); return; }
+      }else{
+        let { error: delErr } = await supabase.from('produk_investasi_user')
+          .delete().eq('id',ex.id);
+        if(delErr){ console.error(delErr); return; }
+      }
+    }
+
+    // update saldo
+    let { error: saldoErr } = await supabase.from('users').update({saldo}).eq('id',currentUser.id);
+    if(saldoErr){ console.error(saldoErr); return; }
+
+    alert(`${side} ${unit} unit ${selectedProduk.nama_produk} sukses!`);
+    document.getElementById('investModal').style.display="none";
+    document.getElementById('tradeUnit').value="";
+    loadPortfolio();
+  }
+
+  // Tombol
+  document.getElementById('btnBuy').addEventListener('click',()=>handleTrade("BUY"));
+  document.getElementById('btnSell').addEventListener('click',()=>handleTrade("SELL"));
+  document.getElementById('modalClose').addEventListener('click',()=>document.getElementById('investModal').style.display="none");
+
+  loadPortfolio();
+});
+</script>
+</body>
+</html>

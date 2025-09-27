@@ -876,9 +876,9 @@ function getBotIconByLeverage(leverage) {
       // Pakai profit dari cache, jangan paksa 0
       const prevProfit = simulatedProfits[bot.id] ?? bot.profit ?? 0;
 
-      const win = Math.random() < 0.49;
+      const win = Math.random() < 0.52;
       const direction = win ? 1.00015 : -1;
-      const baseChange = bot.investasi * 0.00001; 
+      const baseChange = bot.investasi * 0.000001; 
       const leverage = bot.leverage || 1;
       const change = baseChange * leverage * direction;
 

@@ -121,94 +121,115 @@ document.addEventListener('DOMContentLoaded', async () => {
   if(authErr || !user){ alert("Silakan login dulu."); return; }
   let currentUser = user;
 
-  async function loadPortfolio(){
-    let { data, error } = await supabase
-      .from('project_investment')
-      .select(`
-        id,
-        nama_produk,
-        nab,
-        return_value,
-        stok_unit,
+  async function loadPortfolio() {
+  let { data, error } = await supabase
+    .from('project_investment')
+    .select(`
+      id,
+      nama_produk,
+      nab,
+      return_value,
+      stok_unit,
+      jumlah_unit,
+      aum,
+      project_investment_user!left (
         jumlah_unit,
-        aum,
-        project_investment_user!left (
-          jumlah_unit,
-          avg_nab,
-          produk_id
-        )
-      `)
-      .eq('project_investment_user.user_id', currentUser.id);
+        avg_nab,
+        produk_id
+      )
+    `)
+    .eq('project_investment_user.user_id', currentUser.id);
 
-    if(error){ console.error(error); return; }
-
-    let totalAum = 0;
-let totalProfitLoss = 0;
-    const labels=[], values=[];
-    const list=document.getElementById('assetList');
-    list.innerHTML='';
-
-    data.forEach((row)=>{
-      const userInv = row.project_investment_user?.find(p => p.produk_id === row.id) || {};
-      const jumlah_unit = userInv.jumlah_unit || 0;
-      const avg_nab = userInv.avg_nab || 0;
-      const aum = jumlah_unit * row.nab;
-      const ret = row.return_value ? parseFloat(row.return_value) : 0;
-
-      if (jumlah_unit > 0) {
-  totalAum += aum;
-
-  const investedValue = jumlah_unit * avg_nab;
-  const profitLoss = aum - investedValue;
-  totalProfitLoss += profitLoss;
-
-  labels.push(row.nama_produk);
-  values.push(aum);
-}
-
-      const div=document.createElement("div");
-      div.className="asset-card";
-      div.innerHTML=`
-        <div class="asset-left">
-          <div class="name">${row.nama_produk}</div>
-          <div class="desc">NAB: ${formatRupiah(row.nab)} | Unit: ${jumlah_unit.toFixed(4)}</div>
-        </div>
-        <div class="asset-right">
-          <div class="aum">${formatRupiah(aum)}</div>
-          <div class="return" style="color:${ret>=0?'var(--profit)':'var(--loss)'}">
-            ${ret>=0?'+':''}${ret.toFixed(2)}%
-          </div>
-        </div>
-      `;
-      div.addEventListener('click',()=>openModal({...row,jumlah_unit,avg_nab}));
-      list.appendChild(div);
-    });
-
-    document.getElementById('totalAum').textContent = formatRupiah(totalAum);
-    const sign = totalProfitLoss >= 0 ? '+' : '';
-document.getElementById('avgReturn').textContent = `${sign}${formatRupiah(totalProfitLoss)}`;
-
-    if(allocationChart) allocationChart.destroy();
-    const ctx=document.getElementById('allocationChart');
-    allocationChart=new Chart(ctx,{
-      type:'doughnut',
-      data:{ labels, datasets:[{ data:values, backgroundColor:labels.map((_,i)=>colors[i%colors.length]) }] },
-      options:{ responsive:true, plugins:{ legend:{ display:false } } }
-    });
-
-    const allocationList=document.getElementById("allocationList");
-    allocationList.innerHTML="";
-    const totalValue=values.reduce((a,b)=>a+b,0);
-    labels.forEach((label,i)=>{
-      const percent=totalValue>0?((values[i]/totalValue)*100).toFixed(1):0;
-      const color=colors[i%colors.length];
-      const div=document.createElement("div");
-      div.className="asset";
-      div.innerHTML=`<span style="color:${color}">${label}</span><span style="color:${color}">${percent}%</span>`;
-      allocationList.appendChild(div);
-    });
+  if (error) {
+    console.error(error);
+    return;
   }
 
+  let totalAum = 0;
+  let totalProfitLoss = 0;
+  const labels = [], values = [];
+  const list = document.getElementById('assetList');
+  list.innerHTML = '';
+
+  data.forEach((row) => {
+    const userInv = row.project_investment_user?.find(p => p.produk_id === row.id) || {};
+    const jumlah_unit = userInv.jumlah_unit || 0;
+    const avg_nab = userInv.avg_nab || 0;
+    const aum = jumlah_unit * row.nab;
+    const ret = row.return_value ? parseFloat(row.return_value) : 0;
+
+    if (jumlah_unit > 0) {
+      totalAum += aum;
+      const investedValue = jumlah_unit * avg_nab;
+      const profitLoss = aum - investedValue;
+      totalProfitLoss += profitLoss;
+
+      labels.push(row.nama_produk);
+      values.push(aum);
+    }
+
+    const div = document.createElement("div");
+    div.className = "asset-card";
+    div.innerHTML = `
+      <div class="asset-left">
+        <div class="name">${row.nama_produk}</div>
+        <div class="desc">NAB: ${formatRupiah(row.nab)} | Unit: ${jumlah_unit.toFixed(4)}</div>
+      </div>
+      <div class="asset-right">
+        <div class="aum">${formatRupiah(aum)}</div>
+        <div class="return" style="color:${ret >= 0 ? 'var(--profit)' : 'var(--loss)'}">
+          ${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%
+        </div>
+      </div>
+    `;
+    div.addEventListener('click', () => openModal({ ...row, jumlah_unit, avg_nab }));
+    list.appendChild(div);
+  });
+
+  document.getElementById('totalAum').textContent = formatRupiah(totalAum);
+  const sign = totalProfitLoss >= 0 ? '+' : '';
+  document.getElementById('avgReturn').textContent = `${sign}${formatRupiah(totalProfitLoss)}`;
+
+  if (allocationChart) allocationChart.destroy();
+  const ctx = document.getElementById('allocationChart');
+
+  // ✅ Fallback jika tidak ada investasi
+  if (labels.length === 0) {
+    labels.push('Belum ada investasi');
+    values.push(1);
+  }
+
+  allocationChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: labels.map((_, i) => colors[i % colors.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  const allocationList = document.getElementById("allocationList");
+  allocationList.innerHTML = "";
+
+  const totalValue = values.reduce((a, b) => a + b, 0);
+
+  labels.forEach((label, i) => {
+    const percent = totalValue > 0 ? ((values[i] / totalValue) * 100).toFixed(1) : '0.0';
+    const color = colors[i % colors.length];
+    const div = document.createElement("div");
+    div.className = "asset";
+    div.innerHTML = `<span style="color:${color}">${label}</span><span style="color:${color}">${percent}%</span>`;
+    allocationList.appendChild(div);
+  });
+}
   async function openModal(produk){
   selectedProduk = produk;
   document.getElementById('modalTitle').textContent = produk.nama_produk;
@@ -238,17 +259,17 @@ document.getElementById('avgReturn').textContent = `${sign}${formatRupiah(totalP
   async function handleTrade(side) {
   if (!selectedProduk) return;
 
-  let unit = parseFloat(document.getElementById('tradeUnit').value);
+  const unit = parseFloat(document.getElementById('tradeUnit').value);
   if (isNaN(unit) || unit <= 0) {
     alert("Jumlah unit tidak valid");
     return;
   }
 
   const total = unit * selectedProduk.nab;
-  const feePercent = 0.005; // 0.5%
+  const feePercent = 0.005;
   const feeAmount = total * feePercent;
 
-  // Ambil data user dan saldo
+  // Ambil saldo user
   const { data: userData, error: saldoErr } = await supabase
     .from('users')
     .select('saldo')
@@ -256,7 +277,7 @@ document.getElementById('avgReturn').textContent = `${sign}${formatRupiah(totalP
     .single();
 
   if (saldoErr || !userData) {
-    alert("Gagal memuat saldo pengguna.");
+    alert("Gagal mengambil data saldo.");
     return;
   }
 
@@ -270,11 +291,11 @@ document.getElementById('avgReturn').textContent = `${sign}${formatRupiah(totalP
     .single();
 
   if (produkErr || !produk) {
-    alert("Produk investasi tidak ditemukan.");
+    alert("Produk tidak ditemukan.");
     return;
   }
 
-  // Ambil data kepemilikan user pada produk
+  // Ambil data user pada produk
   const { data: userInvest } = await supabase
     .from('project_investment_user')
     .select('*')
@@ -282,7 +303,9 @@ document.getElementById('avgReturn').textContent = `${sign}${formatRupiah(totalP
     .eq('produk_id', produk.id)
     .single();
 
-  // === HANDLE BUY ===
+  let newUserUnit = 0;
+  let newAvgNab = produk.nab;
+
   if (side.toUpperCase() === "BUY") {
     if (saldo < (total + feeAmount)) {
       alert("Saldo tidak cukup.");
@@ -290,108 +313,86 @@ document.getElementById('avgReturn').textContent = `${sign}${formatRupiah(totalP
     }
 
     if (produk.stok_unit < unit) {
-      alert("Stok unit tidak mencukupi.");
+      alert("Stok tidak mencukupi.");
       return;
     }
 
-    saldo -= (total + feeAmount); // total + fee dibayar
+    saldo -= (total + feeAmount);
 
     if (userInvest) {
-      const newUnit = userInvest.jumlah_unit + unit;
-      const newAvg = ((userInvest.avg_nab * userInvest.jumlah_unit) + (produk.nab * unit)) / newUnit;
+      newUserUnit = userInvest.jumlah_unit + unit;
+      newAvgNab = ((userInvest.avg_nab * userInvest.jumlah_unit) + (produk.nab * unit)) / newUserUnit;
 
       await supabase.from('project_investment_user')
-        .update({ jumlah_unit: newUnit, avg_nab: newAvg })
+        .update({
+          jumlah_unit: newUserUnit,
+          avg_nab: newAvgNab
+        })
         .eq('id', userInvest.id);
     } else {
-      await supabase.from('project_investment_user').insert({
-        user_id: currentUser.id,
-        produk_id: produk.id,
-        jumlah_unit: unit,
-        avg_nab: produk.nab
-      });
+      newUserUnit = unit;
+      await supabase.from('project_investment_user')
+        .insert({
+          user_id: currentUser.id,
+          produk_id: produk.id,
+          jumlah_unit: newUserUnit,
+          avg_nab: newAvgNab
+        });
     }
 
+    produk.jumlah_unit += unit;
+    produk.stok_unit -= unit;
+    produk.aum += (total + feeAmount);
   }
 
-  // === HANDLE SELL ===
-  else if (side.toUpperCase() === "SELL") {
+  if (side.toUpperCase() === "SELL") {
     if (!userInvest || userInvest.jumlah_unit < unit) {
-      alert("Unit yang dimiliki tidak mencukupi.");
+      alert("Unit tidak mencukupi.");
       return;
     }
 
-    saldo += (total - feeAmount); // hasil jual dikurangi fee
+    saldo += (total - feeAmount);
 
-    const remain = userInvest.jumlah_unit - unit;
+    newUserUnit = userInvest.jumlah_unit - unit;
 
-    if (remain > 0) {
+    if (newUserUnit > 0) {
       await supabase.from('project_investment_user')
-        .update({ jumlah_unit: remain })
+        .update({ jumlah_unit: newUserUnit })
         .eq('id', userInvest.id);
     } else {
+      // ❗JANGAN DELETE, hanya set ke 0 agar tidak hilang dari tabel
       await supabase.from('project_investment_user')
-        .delete()
+        .update({ jumlah_unit: 0 })
         .eq('id', userInvest.id);
+    }
+
+    produk.jumlah_unit -= unit;
+    produk.stok_unit += unit;
+    produk.aum = produk.aum - total + feeAmount;
+
+    // ❗ Opsional: Cegah jumlah_unit <= 0
+    if (produk.jumlah_unit <= 0) {
+      alert("Tidak bisa menjual seluruh unit. Setidaknya harus tersisa 0.0001 unit di sistem.");
+      return;
     }
   }
 
-  // === REKALKULASI TOTAL UNIT & AUM ===
-
-  // Total unit user (dari semua user) untuk produk ini
-  const { data: totalUnitData, error: aggErr } = await supabase
-    .from('project_investment_user')
-    .select('jumlah_unit')
-    .eq('produk_id', produk.id);
-
-  if (aggErr) {
-    alert("Gagal menghitung total unit pengguna.");
-    return;
-  }
-
-  const totalUserUnit = totalUnitData.reduce(
-    (sum, row) => sum + parseFloat(row.jumlah_unit || 0),
-    0
-  );
-
-  // Hitung stok baru
-  const stokUnitBaru = produk.jumlah_unit + produk.stok_unit - totalUserUnit;
-
-  // Hitung AUM baru
-  let newAUM = produk.aum;
-  if (side.toUpperCase() === "BUY") {
-    newAUM += (total + feeAmount);
-  } else if (side.toUpperCase() === "SELL") {
-    newAUM -= total;
-    newAUM += feeAmount; // fee tetap masuk AUM
-  }
-
-  // Update data produk
-  const { error: updateProdukErr } = await supabase.from('project_investment')
+  // Update produk
+  await supabase.from('project_investment')
     .update({
-      jumlah_unit: totalUserUnit,
-      stok_unit: stokUnitBaru < 0 ? 0 : stokUnitBaru, // pastikan tidak negatif
-      aum: newAUM < 0 ? 0 : newAUM
+      jumlah_unit: Math.max(0, produk.jumlah_unit),
+      stok_unit: Math.max(0, produk.stok_unit),
+      aum: Math.max(0, produk.aum)
     })
     .eq('id', produk.id);
 
-  if (updateProdukErr) {
-    alert("Gagal mengupdate data produk: " + updateProdukErr.message);
-    return;
-  }
-
   // Update saldo user
-  const { error: updateSaldoErr } = await supabase
-    .from('users')
+  await supabase.from('users')
     .update({ saldo })
     .eq('id', currentUser.id);
 
-  if (updateSaldoErr) {
-    alert("Gagal memperbarui saldo.");
-    return;
-  }
-
   alert(`${side.toUpperCase()} ${unit.toFixed(4)} unit ${produk.nama_produk} berhasil.`);
+
   document.getElementById('investModal').style.display = "none";
   document.getElementById('tradeUnit').value = "";
   loadPortfolio();

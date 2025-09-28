@@ -204,19 +204,30 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function openModal(produk){
-    selectedProduk=produk;
-    document.getElementById('modalTitle').textContent=produk.nama_produk;
-    document.getElementById('modalInfo').textContent=`NAB: ${formatRupiah(produk.nab)} | Return: ${produk.return_value?.toFixed(2)}%`;
+  selectedProduk = produk;
+  document.getElementById('modalTitle').textContent = produk.nama_produk;
+  document.getElementById('modalInfo').textContent = `NAB: ${formatRupiah(produk.nab)} | Return: ${produk.return_value?.toFixed(2)}%`;
 
-    let { data:userData } = await supabase.from('users').select('saldo').eq('id',currentUser.id).single();
-    document.getElementById('userSaldo').textContent=formatRupiah(userData?.saldo||0);
+  let { data: userData } = await supabase
+    .from('users')
+    .select('saldo')
+    .eq('id', currentUser.id)
+    .single();
+  document.getElementById('userSaldo').textContent = formatRupiah(userData?.saldo || 0);
 
-    let { data:pu } = await supabase.from('project_investment_user')
-      .select('jumlah_unit').eq('user_id',currentUser.id).eq('produk_id',produk.id).single();
-    document.getElementById('userUnit').textContent=pu?.jumlah_unit ? pu.jumlah_unit.toFixed(4) : '0';
+  let { data: pu } = await supabase
+    .from('project_investment_user')
+    .select('jumlah_unit')
+    .eq('user_id', currentUser.id)
+    .eq('produk_id', produk.id)
+    .single();
+  document.getElementById('userUnit').textContent = pu?.jumlah_unit ? pu.jumlah_unit.toFixed(4) : '0';
 
-    document.getElementById('investModal').style.display="flex";
-  }
+  // ✅ Tambahkan ini:
+  document.getElementById('stokTersedia').textContent = produk.stok_unit?.toFixed(4) || '0';
+
+  document.getElementById('investModal').style.display = "flex";
+}
 
   async function handleTrade(side) {
   if (!selectedProduk) return;

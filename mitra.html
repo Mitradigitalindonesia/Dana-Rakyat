@@ -390,7 +390,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   await supabase.from('users')
     .update({ saldo })
     .eq('id', currentUser.id);
-
+await supabase.from('investment_log').insert({
+  user_id: currentUser.id,
+  produk_id: produk.id,
+  tipe: side.toUpperCase(),
+  jumlah_unit: unit,
+  harga_nab: produk.nab,
+  total: total,
+  fee: feeAmount,
+  saldo_setelah: saldo
+});
   alert(`${side.toUpperCase()} ${unit.toFixed(4)} unit ${produk.nama_produk} berhasil.`);
 
   document.getElementById('investModal').style.display = "none";

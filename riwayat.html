@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riwayat Transaksi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #f9fafb;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-subtle: #6b7280;
+      --primary: #0ea5e9;
+      --highlight: #0ea5e9;
+      --profit: #22c55e;
+      --loss: #ef4444;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: var(--bg-main);
+      color: var(--text-main);
+    }
+
+    .container {
+      max-width: 470px;
+      margin: auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .log-entry {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      border-left: 4px solid var(--primary);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .log-entry.buy { border-left-color: var(--profit); }
+    .log-entry.sell { border-left-color: var(--loss); }
+
+    .log-entry:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .log-details {
+      font-size: 12px;
+      color: var(--text-subtle);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 480px) {
+      .log-header {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Riwayat Transaksi</h2>
+    <div id="logContainer">Memuat...</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = "https://kibcrltcznvkbssgrinw.supabase.co";
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const formatRupiah = (num) =>
+      new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR'
+      }).format(num || 0);
+
+    const formatDate = (str) =>
+      new Date(str).toLocaleString("id-ID", {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const { data: { user }, error: authErr } = await supabase.auth.getUser();
+      if (authErr || !user) {
+        alert("Silakan login terlebih dahulu.");
+        return;
+      }
+
+      const { data: logs, error } = await supabase
+        .from("investment_log")
+        .select(`
+          *, 
+          project_investment(nama_produk)
+        `)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      const container = document.getElementById("logContainer");
+      container.innerHTML = "";
+
+      if (error) {
+        container.textContent = "Gagal memuat riwayat.";
+        console.error(error);
+        return;
+      }
+
+      if (!logs.length) {
+        container.textContent = "Belum ada transaksi.";
+        return;
+      }
+
+      logs.forEach(log => {
+        let side = 'unknown';
+        if (log.side && typeof log.side === 'string') {
+          side = log.side.toLowerCase();
+        }
+
+        const div = document.createElement("div");
+        div.className = `log-entry ${side}`;
+
+        const jumlahUnit = parseFloat(log.jumlah_unit || 0).toFixed(4);
+        const hargaNab = formatRupiah(log.harga_nab);
+
+        div.innerHTML = `
+          <div class="log-header">
+            <span>${log.side === 'BUY' ? 'Beli' : log.side === 'SELL' ? 'Jual' : 'Transaksi'} - ${log.project_investment?.nama_produk || 'Produk tidak ditemukan'}</span>
+            <span>${formatDate(log.created_at)}</span>
+          </div>
+          <div class="log-details">
+            Unit: ${jumlahUnit} | NAB: ${hargaNab} <br/>
+            Total: ${formatRupiah(log.total)} | Fee: ${formatRupiah(log.fee)}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>

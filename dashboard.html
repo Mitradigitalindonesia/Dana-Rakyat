@@ -345,7 +345,7 @@ async function openModal(coin) {
   new TradingView.widget({
   "container_id": "tradingview_chart",
   "autosize": true,
-  "symbol": "BINANCE:BTCUSDT",  // ganti dinamis sesuai coin
+  "symbol": `BINANCE:${coin.symbol.toUpperCase()}USDT`,  // ganti dinamis sesuai coin
   "interval": "60",
   "timezone": "Etc/UTC",
   "theme": "light",

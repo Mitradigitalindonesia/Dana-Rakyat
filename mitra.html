@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const jumlah_unit = userInv.jumlah_unit || 0;
     const avg_nab = userInv.avg_nab || 0;
     const aum = jumlah_unit * row.nab;
-    const ret = row.return_value ? parseFloat(row.return_value) : 0;
+    const ret = row.return_value ? parseFloat(row.return_value) * 100 : 0;
 
     if (jumlah_unit > 0) {
       totalAum += aum;

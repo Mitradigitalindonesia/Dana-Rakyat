@@ -129,33 +129,35 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-          const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = "https://kibcrltcznvkbssgrinw.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w";
 
-    const form = document.getElementById('loginForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+  const form = document.getElementById("loginForm");
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      if (error) {
-        alert('Login gagal: ' + error.message);
-        return;
-      }
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-      alert("Login berhasil!");
-      window.location.href = "dashboard.html"; // Ganti dengan halaman dashboardmu
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
-  </script>
+
+    if (error) {
+      alert("Login gagal: " + error.message);
+      return;
+    }
+
+    alert("Login berhasil!");
+    window.location.href = "dashboard.html";
+  });
+</script>
 </body>
 </html>

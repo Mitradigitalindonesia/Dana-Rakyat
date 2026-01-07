@@ -222,12 +222,13 @@
   <!-- TradingView JS -->
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <!-- Supabase JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    const SUPABASE_URL = 'https://kibcrltcznvkbssgrinw.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w';
+  <script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = "https://kibcrltcznvkbssgrinw.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmNybHRjem52a2Jzc2dyaW53Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NzAyNDksImV4cCI6MjA3MjU0NjI0OX0.LOX9fn-w1VwqiQJA4QxXsHResIQeVHf-0Rygn_x8U2w";
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     let selectedCoin = null;
 
     // Format IDR
